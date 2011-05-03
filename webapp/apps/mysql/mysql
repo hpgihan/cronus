@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Usage : mysql {create} {port}
+# Usage : mysql {destroy}
+
+PORT=$2
+ID=`expr $PORT - 8080`
+
+DEPSCRIPTS=`dirname $0`
+MYSQL_CONF='/etc/mysql/my.cnf'
+
+. $DEPSCRIPTS/shell.inc.sh
+
+function create_mysql() {
+
+	if grep -q "mysqld$ID" $MYSQL_CONF;then
+		# Remove block
+		sed -i -e "/mysqld$ID/,/end/ d" $MYSQL_CONF 
+	fi
+(
+cat <<EOF
+[mysqld$ID]
+ 
+datadir = /home/cust$PORT/var/lib/mysql
+socket = /home/cust$PORT/var/lib/mysql/mysql.sock
+pid-file = /home/cust$PORT/var/run/mysqld/mysqld.pid
+user = mysql
+port = $MYSQL_PORT
+server-id=$ID
+log-bin=mysql-bin
+log-error=/home/cust$PORT/var/log/mysql/error.log
+# end mysqld$ID
+
+EOF
+) >> $MYSQL_CONF
+	
+}
+
+case $1 in
+	create)
+
+		# create database
+		if [ ! -d /home/cust${PORT}/var/lib/mysql ];then
+				mkdir -p /home/cust${PORT}/var/lib/mysql
+				mysql_install_db --user=mysql --datadir=/home/cust${PORT}/var/lib/mysql
+				chown -R mysql /home/cust${PORT}/var/lib/mysql
+		fi
+
+		if [ ! -d /home/cust${PORT}/var/run/mysqld ];then
+				mkdir -p /home/cust${PORT}/var/run/mysqld
+				chown -R mysql /home/cust${PORT}/var/run/mysqld
+		fi
+		# added by gihan
+		# create mysqld instance log directory and error.log file 
+		if [ ! -d /home/cust${PORT}/var/log/mysql ];then
+				mkdir -p /home/cust${PORT}/var/log/mysql
+				touch /home/cust${PORT}/var/log/mysql/error.log
+				chmod -R 0777 /home/cust${PORT}/var/log/mysql
+		fi
+
+		if [ ! -f /home/cust${PORT}/etc/dbuserpassword.txt ];then
+				# gen user mysql password 
+				DBPASS=`pwgen -1`
+				echo $DBPASS > /home/cust${PORT}/etc/dbuserpassword.txt
+		else
+				DBPASS=`cat "/home/cust${PORT}/etc/dbuserpassword.txt"`
+		fi
+
+		create_mysql
+
+		# Start mysql
+		mysqld_multi start $ID 
+        sleep 30	
+		# Reset mysql root to same as user password
+		#echo "$MYSQL_PORT"
+		#echo "$DBPASS"
+		mysqladmin -P $MYSQL_PORT --protocol tcp -u root password $DBPASS
+		
+
+		# Create myql user
+        #sleep 5	
+		#echo $MYSQL
+		#echo $DBPASS
+		#$MYSQL -u root --password='$DBPASS' -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
+		#echo cust${PORT}
+		
+		mysql -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u root --password=${DBPASS} -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
+		#echo mysql -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u root --password=${DBPASS} -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
+	;;
+
+	destroy)
+		# drop mysql blog database
+		/bin/rm -fr /home/cust${PORT}/var/lib/mysql/cust${PORT}_blogdb
+	;;
+
+	*)
+		echo "Usage: mysql {create} {port}"
+		exit 1
+		;;
+esac
+
+
