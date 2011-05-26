@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #Application specific variables (added by Pubudu)
-OS="LINUX"; #Has to be either LINUX or BSD
+OS="BSD"; #Has to be either LINUX or BSD
 SERVER='multi'; #Has to be either basic or multi
-FILE_SYS_HOME='ad0s1d/home'; #Make sure to configure this if the OS is BSD
+FILE_SYS_HOME='tank0/home'; #Make sure to configure this if the OS is BSD
 VIRTUAL_GROUP='customers'; #Make sure to configure this if the OS is LINUX
 
 # Mysql specific variables

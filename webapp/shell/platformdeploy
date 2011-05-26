@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Usage : webappdeploy {create} {port} {username=username} {password=password} {domain=domain} {subdomain=subdomain} {diskquota=disk quota in GB} {idphost=Host of IDP} {idpcert=Certificate data of IDP}{infra_ip=infra server ip} {infra_domain=infra server domain} {licenses=licenses}  {features *}
-# Usage : webappdeploy {destroy} {port}
+# Usage : platformdeploy {create} {port} {diskquota}
+# Usage : platform {destroy} {port}
 
 PORT=$2
 DISKQUOTA=$3
@@ -70,7 +70,6 @@ do
 		esac
 	fi
 done
-
 
 FEATURES=`echo -n $*|sed -e "s/.*=[^=][^ ]*[ ]//"`
 case $1 in
@@ -144,9 +143,9 @@ case $1 in
 	# do mysql virtualization
 	${DEPSCRIPTS}/mysql/mysql create $PORT
 
-    # deploy samlservice
-    #${DEPSCRIPTS}/samlservice/samlservice create $PORT $DOMAIN $IDPHOST $IDPCERT
-	
+    	# deploy samlservice
+    	#${DEPSCRIPTS}/samlservice/samlservice create $PORT $DOMAIN $IDPHOST $IDPCERT
+
 	;;
 
 	destroy)
