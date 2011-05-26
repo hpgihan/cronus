@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Deploy PHP SAML Service
+
+PROGRAM="samlservice"
+DEPSCRIPTS=`dirname $0`
+
+PORT=$2
+DOMAIN=$3
+IDPHOST=$4
+IDPCERT=$5
+
+if [ ! $PORT ] || [ ! $DOMAIN ] || [ ! $IDPHOST ] || [ ! $IDPCERT ]; then
+    echo "Usage: samlservice {create} {PORT DOMAIN IDPHOST IDPCERT}"
+    exit 1
+fi
+
+if [[ ! $PORT =~ ^[0-9]{4}$ ]] ; then
+    echo "Port out of range"
+    exit 1
+fi
+
+case $1
+in
+    create)
+        if [ -d /home/tenant${PORT}/var/samlservice ] ; then
+            rm -r /home/tenant${PORT}/var/samlservice
+        fi
+
+        tar xf ${DEPSCRIPTS}/deploy-${PROGRAM}/samlservice.tar --directory=/home/tenant${PORT}/var/
+        cd /home/tenant${PORT}/var/samlservice
+
+        # insert tenant domain as entity name for tenant samlservice
+        mv config/authsources.php config/authsources.php.tmp
+        cat config/authsources.php.tmp | sed -e "s/XXXDOMAINXXX/$DOMAIN/g" > config/authsources.php
+        rm config/authsources.php.tmp
+
+        # insert IDP metadata for tenant samlservice
+        mv metadata/saml20-idp-remote.php metadata/saml20-idp-remote.php.tmp
+        cat metadata/saml20-idp-remote.php.tmp | sed -e "s/XXXIDPHOSTXXX/$IDPHOST/g" | sed -e "s/XXXIDPCERTXXX/$IDPCERT/g" > metadata/saml20-idp-remote.php
+        rm metadata/saml20-idp-remote.php.tmp
+    ;;
+
+    *)
+        echo "Usage: samlservice {create|} {PORT DOMAIN IDPHOST IDPCERT}"
+        exit 1
+esac
