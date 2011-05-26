@@ -1,3 +1,3 @@
 <?php
-    $path="~/platform/shell";
+    $shell_path="~/platform/shell";
 ?>
