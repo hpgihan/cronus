@@ -1,0 +1,153 @@
+#!/bin/bash
+# usage enable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME-q
+
+DESCRIPTS=`dirname $0`
+
+source ${DESCRIPTS}/settings
+
+function tenant_enable(){
+    local job_id=$1
+    local port=$2
+    local webapp_ip=$3
+
+    local rest_url="https://${webapp_ip}/api/tenants/action/tenant/enable"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"port\":\"'$port'\", \"token\":\"'$token'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+} 
+
+function domain_enable(){
+    local job_id=$1
+    local subdomain=$2
+    local dns_ip=$3
+    local webapp_ip=$4
+    local infra_ip=$5
+
+    local rest_url="https://${dns_ip}/api/dns/action/domain/enable"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"subdomain\":\"'${subdomain}'\", \"token\":\"'$token'\", \"webappip\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+}
+
+function idp_user_add(){
+    local job_id=$1
+    local username=$2
+    local idp_dns=$3
+
+    local rest_url="https://${idp_dns}/api/idp/action/user/add"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+}
+
+# pass arguments
+while [ $# -gt 0 ]
+do
+  case $1
+  in
+    -domain)
+      domain=$2
+      shift 2
+    ;;
+
+    -tenant-id)
+      tenant_id=$2
+      shift 2
+    ;;
+
+    -username)
+      username=$2
+      shift 2
+    ;;
+
+    -q)
+      queued=1
+      shift 1
+    ;;
+    --help)
+      echo "usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME -q"
+      exit
+    ;;
+
+    *)
+      echo "Invalid option $1"
+      exit 1
+  esac
+done
+
+# should be qeueud for queue handling deamon to process
+if [ ! $queued ] ; then
+    echo "Operation should be queued. Exiting."
+    exit 1
+fi
+
+if [ ! $username ] ; then
+    echo "Username of Tanent should be provided'. Exiting"
+    exit 1
+fi
+
+if [ ! ${tenant_id} ] ; then
+    if [ ${domain} ] ; then
+        tenant_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id from ${tenant_table} where domain = '${domain}'"`
+        tenant_id=`echo $tenant_row | awk -F ' ' '{print $2}'`
+    else
+        echo "-tenant-id or -domain should be provided. Exiting"
+        exit 1
+    fi
+fi
+
+if [ ! ${tenant_id} ] ; then
+    echo "No tenant with provided data. Exiting"
+    exit 1
+fi
+
+# get DNS IP
+dns_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'dns' and remaining_capacity > 0 and server_allocation_status = 1"`
+dns_ip=`echo $dns_row | awk -F ' ' '{print $2}'`
+
+if [ ! $dns_ip ] ; then
+    echo "No DNS allocated. Exiting"
+    exit 1
+fi
+
+# get IDP DNS
+idp_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_dns from ${server_table} where server_type = 'idp' and remaining_capacity > 0 and server_allocation_status = 1"`
+idp_dns=`echo $idp_row | awk -F ' ' '{print $2}'`
+
+if [ ! $idp_dns ] ; then
+    echo "No IDP allocated. Exiting"
+    exit 1
+fi
+
+subdomain_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select subdomain from ${tenant_table} where id = ${tenant_id}"`
+subdomain=`echo $subdomain_row | awk -F ' ' '{print $2}'`
+cluster_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select cluster_id from ${tenant_table} where id = ${tenant_id}"`
+cluster_id=`echo $cluster_row | awk -F ' ' '{print $2}'`
+webapp_ip_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where cluster_id = ${cluster_id} and server_type = 'webapp'"`
+webapp_ip=`echo $webapp_ip_row | awk -F ' ' '{print $2}'`
+infra_ip_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where cluster_id = ${cluster_id} and server_type = 'infra'"`
+infra_ip=`echo $infra_ip_row | awk -F ' ' '{print $2}'`
+port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id from ${tenant_port_table} where tenant_id = '${tenant_id}'"`
+port=`echo $port_row | awk -F ' ' '{print $2}'`
+
+if [ ! ${subdomain} ] || [ ! ${port} ] || [ ! ${webapp_ip} ] || [ ! ${infra_ip} ] ; then
+    echo "Could not find tanent with supplied data. Exiting"
+    exit 1
+fi
+
+# put the job to the queue
+job_id_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${job_table}"`
+job_id=`echo $job_id_row | awk -F ' ' '{print $2}'`
+
+if [ ! ${job_id} == "NULL" ] ; then
+    job_id=`expr $job_id + 1`
+else
+    job_id=1
+fi
+
+tenant_enable ${job_id} ${port} ${webapp_ip}
+domain_enable ${job_id} ${subdomain} ${dns_ip} ${webapp_ip} ${infra_ip}
+idp_user_add ${job_id} ${username} ${idp_dns}
+
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_enable}', '${job_status_new}', ${tenant_id})"
+echo "Tenant enabling queued"

@@ -1,0 +1,287 @@
+#!/bin/bash
+# usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q
+
+DESCRIPTS=`dirname $0`
+
+source ${DESCRIPTS}/settings
+
+# add tenant create deployment to the queue
+function add_tenant_deployment()
+{
+    local job_id=$1
+    local port=$2
+    local domain=$3
+    local subdomain=$4
+    local diskquota=$5
+    local webapp_ip=$6
+
+    local rest_url="https://${webapp_ip}/api/tenants/action/tenant/create"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"port\":\"'$port'\", \"diskquota\":\"'$diskquota'\", \"token\":\"'$token'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    #echo "insert into ${deployment_table} (job_id, category, rest_url, rest_array, status, priority_id) values ($job_id, 'webapp', '$rest_url', '$values', 0, 1)"
+}
+
+# add saml service provider deployment
+function add_sp_deployment()
+{
+    local job_id=$1
+    local port=$2
+    local domain=$3
+    local idp_dns=$4
+    local idp_cert=$5
+    local webapp_ip=$6
+
+    local rest_url="https://${webapp_ip}/api/tenants/action/sp/create"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"port\":\"'${port}'\", \"domain\":\"'${domain}'\", \"token\":\"'${token}'\", \"idphost\":\"'${idp_dns}'\", \"idpcert\":\"'${idp_cert}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    #echo "insert into ${deployment_table} (job_id, category, rest_url, rest_array, status, priority_id) values ($job_id, 'webapp', '$rest_url', '$values', 0, 1)"
+}
+
+# add vhost create deployment to the queue
+function add_vhost_deployment()
+{
+    local job_id=$1
+    local port=$2
+    local domain=$3
+    local webapp_ip=$4
+    local infra_ip=$5
+
+    local rest_url="https://${infra_ip}/api/proxy/action/vhost/create"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"domain\":\"'${domain}'\", \"port\":\"'${port}'\", \"webappip\":\"'${webapp_ip}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'infra', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+}
+
+# add dns deployment to the queue
+function add_dns_deployment()
+{
+    local job_id=$1
+    local subdomain=$2
+    local dns_ip=$3
+    local webapp_ip=$4
+    local infra_ip=$5
+
+    local rest_url="https://${dns_ip}/api/dns/action/domain/add"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"subdomain\":\"'${subdomain}'\", \"infraip\":\"'${infra_ip}'\", \"webappip\":\"'${webapp_ip}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+}
+
+# add domain to idp metadata
+function add_idp_sp_deployment()
+{
+    local job_id=$1
+    local domain=$2
+    local idp_dns=$3
+
+    local rest_url="https://${idp_dns}/api/idp/action/sp/add"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+}
+
+function add_idp_user_deployment()
+{
+    local job_id=$1
+    local domain=$2
+    local username=$3
+    local password=$4
+
+    local rest_url="https://${idp_dns}/api/idp/action/user/add"
+    local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
+    local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+}
+
+# pass arguments
+while [ $# -gt 0 ]
+do
+  case $1
+  in
+    -domain)
+      domain=$2
+      shift 2
+    ;;
+
+    -disk-quota)
+      diskquota=$2
+      shift 2
+    ;;
+
+    -username)
+      username=$2
+      shift 2
+    ;;
+    -password)
+      password=$2
+      shift 2
+    ;;
+
+    -q)
+      queued=1
+      shift 1
+    ;;
+    --help)
+      echo "usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q"
+      exit
+    ;;
+
+    *)
+      echo "Invalid option $1"
+      exit 1
+  esac
+done
+
+# should be qeueud for queue handling deamon to process
+if [ ! $queued ] ; then
+    echo "Operation should be queued. Exiting."
+    exit 1
+fi
+
+if [ ! $domain ] ; then
+    echo "No domain provided. Exiting."
+    exit 1
+else
+    subdomain=`echo $domain | awk -F '.' '{print $1}'`
+fi
+
+if [ ! $username ] || [ ! $password ] ; then
+    echo "Username and Password should be available. Exiting"
+    exit 1
+fi
+
+# check for domain availability
+domain_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select domain from ${tenant_table} where domain = '${domain}'"`
+domain_=`echo $domain_row | awk -F ' ' '{print $2}'`
+
+if [ $domain_ ] ; then
+    echo "Domain $domain not available. Exiting"
+    exit 1
+fi
+
+if [ ! ${rest_key} ] ; then
+    echo "Missing REST key. Exiting"
+    exit 1
+fi
+
+if [ ! ${IDP_cert} ] ; then
+    echo "Missing IDP cert data. Exiting"
+    exit 1
+fi
+
+# get DNS IP
+dns_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'dns' and remaining_capacity > 0 and server_allocation_status = 1"`
+dns_ip=`echo $dns_row | awk -F ' ' '{print $2}'`
+
+if [ ! $dns_ip ] ; then
+    echo "No DNS allocated. Exiting"
+    exit 1
+fi
+
+# get IDP DNS
+idp_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_dns from ${server_table} where server_type = 'idp' and remaining_capacity > 0 and server_allocation_status = 1"`
+idp_dns=`echo $idp_row | awk -F ' ' '{print $2}'`
+
+if [ ! $idp_dns ] ; then
+    echo "No IDP allocated. Exiting"
+    exit 1
+fi
+
+# allocate default diskquota if non specified
+if [ ! ${diskquota} ] ; then
+    diskquota=${default_diskquota}
+fi
+
+# determine cluster and webapp the tenant should be added
+result=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select cluster_id from ${server_table} where server_type = 'infra' and remaining_capacity > 0"`
+
+cluster_ids=`echo $result | cut -f2- -d ' '`
+
+for id in ${cluster_ids}
+    do
+        #echo $cluster_id
+        result1=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id, server_ip from ${server_table} where server_type = 'webapp' and remaining_capacity > 0 and cluster_id = ${id} LIMIT 1"`
+
+        webapp_id=`echo $result1 | awk -F ' ' '{print $3}'`
+        webapp_ip=`echo $result1 | awk -F ' ' '{print $4}'`
+        if [ ${webapp_id} ] ; then
+            cluster_id=$id
+            break
+        fi
+    done
+
+if [ ! ${webapp_id} ] ; then
+    echo "No available server to deploy tenant. Exiting"
+    exit 1
+fi
+
+# get infra ip relevant to the tenant
+infra_ip_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'infra' and cluster_id = ${id}"`
+infra_ip=`echo $infra_ip_row | awk -F ' ' '{print $2}'`
+
+# get available tenant id
+tenant_id_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${tenant_table}"`
+tenant_id=`echo $tenant_id_row | awk -F ' ' '{print $2}'`
+
+if [ ! ${tenant_id} == "NULL" ] ; then
+    tenant_id=`expr $tenant_id + 1`
+else
+    tenant_id=1
+fi
+
+# determine port allocated to tenant
+port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT min(id) from ${tenant_port_table} WHERE webapp_id = ${webapp_id} and tenant_id = 0"`
+port=`echo $port_row | awk -F ' ' '{print $2}'`
+
+if [ ${port} == "NULL" ] ; then
+    port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${tenant_port_table} WHERE webapp_id = ${webapp_id}"`
+    port=`echo $port_row | awk -F ' ' '{print $2}'`
+    if [ ${port} == "NULL" ] ; then
+        port=${start_port}
+    else
+        port=`expr $port + 1`
+    fi
+fi
+
+echo "Following tenant would be added"
+echo "Tenant ID - $tenant_id"
+echo "Domain - $domain"
+echo "Subdomain - $subdomain"
+echo "Cluster - $cluster_id"
+echo "Webapp ID - $webapp_id"
+echo "Port - $port"
+echo "Disk Quota - $diskquota"
+
+# add new tenant
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${tenant_table} (domain, subdomain, cluster_id, status) values ('${domain}', '${subdomain}', ${cluster_id}, 1)"
+
+# allocate port
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${tenant_port_table} (id, webapp_id, tenant_id, profile_id) values (${port}, ${webapp_id}, ${tenant_id}, 0)"
+
+# allocated space from servers to the tenant
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "UPDATE ${server_table} SET remaining_capacity = (remaining_capacity-1) WHERE server_type = 'infra' and cluster_id = ${cluster_id}"
+
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "UPDATE ${server_table} SET remaining_capacity = (remaining_capacity-1) WHERE server_type = 'webapp' and id = ${webapp_id}"
+
+# put a job to the queue
+job_id_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${job_table}"`
+job_id=`echo $job_id_row | awk -F ' ' '{print $2}'`
+
+if [ ! ${job_id} == "NULL" ] ; then
+    job_id=`expr $job_id + 1`
+else
+    job_id=1
+fi
+
+add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip
+add_sp_deployment $job_id $port $domain $idp_dns $IDP_cert $webapp_ip
+add_vhost_deployment $job_id $port $domain $webapp_ip $infra_ip
+add_dns_deployment $job_id $subdomain $dns_ip $webapp_ip $infra_ip
+add_idp_sp_deployment $job_id $domain $idp_dns
+add_idp_user_deployment $job_id $domain $username $password
+
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_deploy}', '${job_status_new}', ${tenant_id})"
+
+echo "Tenant creation queued"

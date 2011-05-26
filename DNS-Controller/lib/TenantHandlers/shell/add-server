@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# usage add-server -type [infra|webapp|...] -ip IPADDRESS
+
+DESCRIPTS=`dirname $0`
+
+# import settings file
+source ${DESCRIPTS}/settings
+
+if [ -f ${DESCRIPTS}aura_settings ] ; then
+    source ${DESCRIPTS}aura_settings
+fi
+
+# check whether an input is a valid IP Address
+function is_ip_valid()
+{
+    local  ip=$1
+    local  stat=1
+    
+    # checks four '.'s and 3 digit integers
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        stat=0
+        OIFS=$IFS
+        IFS='.'
+        
+        # checks whether the integers are lower than or equal to 255
+        for digit in $ip
+        do
+            if [ $digit -gt 255 ]; then
+                stat=1
+                break
+            fi
+        done
+
+        IFS=$OIFS
+    fi
+    return $stat
+}
+
+function check_server_status()
+{
+    local ip=$1
+    ping -c 3 $ip > /dev/null
+    return $?
+}
+
+# passes arguments, checks for invalid options
+while [ $# -gt 0 ]
+do
+  case $1
+  in
+    -ip)
+      ip=$2
+      shift 2
+    ;;
+
+    -type)
+      server_type=$2
+      shift 2
+    ;;
+
+    -domain-name)
+      domain=$2
+      shift 2
+    ;;
+
+    -capacity)
+      capacity=$2
+      shift 2
+    ;;
+
+    -cluster)
+      cluster=$2
+      shift 2
+    ;;
+
+    *)
+      echo "Invalid option $1"
+      exit
+  esac
+done
+
+# if no capacity is provided use a default value
+if [ ! $capacity ] ; then 
+    capacity=1000
+fi
+
+# IP Address should be provided
+if [ ! $ip ] ; then 
+    echo "No IP Adrress provided. Exiting."
+    exit 1
+fi
+
+# server type should be provided
+if [ ! $server_type ] ; then 
+    echo "No Server type provided. Exiting."
+    exit 1
+fi
+
+# checks for IP Address validity
+if !(is_ip_valid $ip) ; then
+    echo "Invalid IP Address format. Exiting."
+    exit 1
+fi
+
+# check status of specified server
+if !(check_server_status $ip) ; then
+    echo "Server $ip is down. Exiting."
+    exit 1
+fi
+
+if !(`echo ${server_types} | grep -q -w ${server_type}`) ; then
+    echo "Server type should be one of ${server_types}"
+    exit 1
+fi
+
+# when an infra is added a new cluster is created
+if [ $server_type == "infra" ] ; then
+    if [ $cluster ] ; then
+        echo "A cluster ID can't be specified with server type infra. Exiting."
+        exit 1
+    # get new cluster ID
+    else
+        result=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select MAX(cluster_id) from ${server_table}"`
+        highest_cluster=`echo $result | awk -F ' ' '{print $2}'`
+        cluster=`expr $highest_cluster + 1`
+    fi
+fi
+
+# a webapp is added to an existing cluster
+if [ $server_type == "webapp" ] ; then
+    if [ ! $cluster ] ; then
+        echo "A cluster ID should be specified when adding a server type webapp. Exiting."
+        exit 1
+    # check whether cluster ID is valid
+    else
+        result=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select cluster_id from ${server_table} where cluster_id = '${cluster}' and server_type = 'infra'"`
+
+        cluster=`echo $result | awk -F ' ' '{print $2}'`
+
+        if [ ! $cluster ] ; then
+            echo "Invalid cluster ID. Exiting."
+            exit 1
+        fi
+    fi
+fi
+
+# validate capacity. Should be an integer 
+if [[ ! $capacity =~ ^[0-9]+$ ]] ; then
+    echo "invalid integer. Exiting."
+    exit 1
+fi
+
+echo "Adding server with following data"
+echo "IP - $ip"
+echo "Type - $server_type"
+echo "Cluster ID - $cluster"
+echo "Capacity - $capacity"
+
+# adds the new server entry
+#mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${server_table} (server_ip, server_type, server_capacity, remaining_capacity, cluster_id) values ('${ip}', '${server_type}', ${capacity}, ${capacity}, ${cluster})"

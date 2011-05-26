@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Add a saml consumer in IDP
+# usage samlserviceprovider {add|delete} {DOMAIN}
+
+IDP_LOCATION="/var/idp"
+DOMAIN=$2
+
+if [ ! -d $IDP_LOCATION ] ; then
+    echo "IDP cannot be located at ${IDP_LOCATION}"
+    exit 1
+fi
+
+if [ ! $DOMAIN ] ; then
+    echo "USAGE samlserviceprovider {add|delete} {DOMAIN}"
+    exit 1
+fi
+
+entry="$""metadata['XXXDOMAINXXX'] = array (
+'AssertionConsumerService' => 'https://XXXDOMAINXXX/simplesaml/module.php/saml/sp/saml2-acs.php/sp',
+'SingleLogoutService' => 'https://XXXDOMAINXXX/simplesaml/module.php/saml/sp/saml2-logout.php/sp',
+);"
+
+
+case $1
+in
+    add)
+        echo $entry | sed -e "s/XXXDOMAINXXX/${DOMAIN}/g" >> $IDP_LOCATION/metadata/saml20-sp-remote.php
+    ;;
+    delete)
+        mv $IDP_LOCATION/metadata/saml20-sp-remote.php $IDP_LOCATION/metadata/saml20-sp-remote.php.tmp
+        sed '/'$DOMAIN'/d' $IDP_LOCATION/metadata/saml20-sp-remote.php.tmp > $IDP_LOCATION/metadata/saml20-sp-remote.php
+        rm $IDP_LOCATION/metadata/saml20-sp-remote.php.tmp
+    ;;
+    *)
+    echo "USAGE samlserviceprovider {add|delete} {DOMAIN}"
+    exit 1
+esac   
+
+
+
+

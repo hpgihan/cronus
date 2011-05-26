@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Usage : dns {add} {subdomain} {ProxyIPAddress} {WebappIP}
+# Usage : dns {delete} {subdomain} {ProxyIPAddress} {WebappIP}
+
+PROGRAM="dns"
+DEPSCRIPTS=`dirname $0`
+
+# Include deployment specific variables
+source  $DEPSCRIPTS/settings
+if [ -f $DEPSCRIPTS/aura_settings ] ; then
+        source aura_settings
+fi
+
+SUBDOMAIN=$2
+PROXYIP=$3
+WEBAPPIP=$4
+
+case $1 in
+    add)
+ 	if grep -q "^$SUBDOMAIN.*${PROXYIP}" /etc/bind/${DBZONE};then
+		echo "Domain already exits !"
+        exit 1	
+	fi	
+	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`	
+ 	NEWSERIAL=`expr ${SERIAL} + 1`
+
+	cp -a /etc/bind/${DBZONE} /etc/bind/${DBZONE}.bak	
+	echo "$SUBDOMAIN	IN	A	$PROXYIP" >> /etc/bind/${DBZONE}		
+    if [ $MAILSERVERIP ] ; then
+	    echo "$SUBDOMAIN	IN	MX 5	$MAILSERVERIP" >> /etc/bind/${DBZONE}		
+    fi
+	cat /etc/bind/${DBZONE} | sed -e "s/${SERIAL}/${NEWSERIAL}/g" > /etc/bind/${DBZONE}.tmp
+	mv /etc/bind/${DBZONE}.tmp /etc/bind/${DBZONE}
+	/etc/init.d/bind9 reload
+	
+	;;
+
+	basicadd)
+ 	if grep -q "^$SUBDOMAIN.*${WEBAPPIP}" /etc/bind/${DBZONE};then
+		echo "Domain already exits !"
+        exit 1	
+	fi	
+	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`	
+ 	NEWSERIAL=`expr ${SERIAL} + 1`
+
+	cp -a /etc/bind/${DBZONE} /etc/bind/${DBZONE}.bak	
+	echo "$SUBDOMAIN	IN	A	$WEBAPPIP" >> /etc/bind/${DBZONE}		
+    if [ $MAILSERVERIP ] ; then
+	    echo "$SUBDOMAIN	IN	MX 5	$MAILSERVERIP" >> /etc/bind/${DBZONE}
+    fi		
+	cat /etc/bind/${DBZONE} | sed -e "s/${SERIAL}/${NEWSERIAL}/g" > /etc/bind/${DBZONE}.tmp
+	mv /etc/bind/${DBZONE}.tmp /etc/bind/${DBZONE}
+	/etc/init.d/bind9 reload
+
+	;;
+	delete)
+	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`
+    NEWSERIAL=`expr ${SERIAL} + 1`
+
+    cp -a /etc/bind/${DBZONE} /etc/bind/${DBZONE}.bak
+	cat /etc/bind/${DBZONE} | sed -e "s/${SERIAL}/${NEWSERIAL}/g" | sed -e "s/^$SUBDOMAIN.*$PROXYIP//g" | sed -e "s/^$SUBDOMAIN.*mail//g" > /etc/bind/${DBZONE}.tmp
+	mv /etc/bind/${DBZONE}.tmp /etc/bind/${DBZONE}
+    /etc/init.d/bind9 reload
+
+	;;
+
+	basicdelete)
+	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`
+    NEWSERIAL=`expr ${SERIAL} + 1`
+
+    cp -a /etc/bind/${DBZONE} /etc/bind/${DBZONE}.bak
+	cat /etc/bind/${DBZONE} | sed -e "s/${SERIAL}/${NEWSERIAL}/g" | sed -e "s/^$SUBDOMAIN.*$WEBAPPIP//g" | sed -e "s/^$SUBDOMAIN.*mail//g" > /etc/bind/${DBZONE}.tmp
+	mv /etc/bind/${DBZONE}.tmp /etc/bind/${DBZONE}
+    /etc/init.d/bind9 reload
+	
+	;;
+
+    *)
+        echo "Usage: dns {create|basiccreate|destroy|basicdestroy} {subdomain} {ProxyIPAddress}"
+        exit 1
+    ;;
+esac
