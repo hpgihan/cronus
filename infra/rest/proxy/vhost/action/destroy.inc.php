@@ -13,7 +13,7 @@ EOT;
 }
 
 include ("$module/lib/$action_on.inc.php");
-include ("$action_on/config.php");
+include ("$module/$action_on/config.php");
 $retval = $function(param('domain'));
 if($retval) {
 	print json_encode(array('status'=>'success'));

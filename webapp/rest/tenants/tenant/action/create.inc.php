@@ -16,7 +16,7 @@ EOT;
 }
 
 include ("$module/lib/$action_on.inc.php");
-include ("$action_on/config.php");
+include ("$module/$action_on/config.php");
 //echo param('port').",".  param('subdomain').",".  param('domain').",".  param('infraip').",". param('webappip');
 $retval = $function(param('port'), param('diskquota'));
 

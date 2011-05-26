@@ -15,7 +15,7 @@ EOT;
 }
 
 include ("$module/lib/$action_on.inc.php");
-include ("$action_on/config.php");
+include ("$module/$action_on/config.php");
 $retval = change_domain(param('port'), param('domain'), param('infraip'), param('webappip'), param('subdomain'));
 
 if($retval) {
