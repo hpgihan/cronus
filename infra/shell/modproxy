@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Usage : modproxy {create|delete} {domain} {port} {webappip}
+
+PROGRAM="modproxy"
+DOMAIN=$2
+PORT=$3
+SPORT=`expr $2 + 1000`
+DEPSCRIPTS=`dirname $0`
+WEBAPPIP=$4
+
+case $1 in
+    create)
+	    # create empty directory
+        if [ ! -d /var/www/${DOMAIN} ];then
+            mkdir -p /var/www/${DOMAIN}
+        fi
+
+	    if [ ! -f /etc/apache2/sites-available/${DOMAIN} ];then
+		    cat ${DEPSCRIPTS}/deploy-${PROGRAM}/etc/apache2/sites-available/vhost | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" | sed -e "s/RRDOMAINNAMERR/${DOMAIN}/g" | sed -e "s/RRWEBAPPIPRR/${WEBAPPIP}/g" | sed -e "s/RRINFRAIPRR/${INFRAIP}/g" > /etc/apache2/sites-available/${DOMAIN}
+		    a2ensite ${DOMAIN}
+        else
+            echo "Mod Proxy already available. exiting."
+            exit 1
+	    fi
+
+	    # copy ssl certificate
+	    # todo - this need to be changed when create user ssl certificates
+	    # create ssl certificate directory
+        if [ ! -d /etc/apache2/ssl/${DOMAIN} ];then
+            mkdir -p /etc/apache2/ssl/${DOMAIN}
+        fi
+
+	    cp -a ${DEPSCRIPTS}/deploy-${PROGRAM}/etc/apache2/ssl/thinkcube.net.crt /etc/apache2/ssl/${DOMAIN}/
+	    cp -a ${DEPSCRIPTS}/deploy-${PROGRAM}/etc/apache2/ssl/thinkcube.net.key /etc/apache2/ssl/${DOMAIN}/
+
+	    /etc/init.d/apache2 reload	
+	
+	;;
+
+    destroy)
+	    a2dissite ${DOMAIN}
+	    rm /etc/apache2/sites-available/${DOMAIN}
+	    rm -fr /etc/apache2/ssl/${DOMAIN}
+	    rm -fr /var/www/${DOMAIN}	
+	    /etc/init.d/apache2 reload
+
+	;;
+
+	reset)
+	cd  /etc/apache2/sites-available/
+	ls -1 *.$MAINDOMAIN | sed -e "/infra.$MAINDOMAIN/d" | sed -e "s/.$MAINDOMAIN//g" > $TMPFILE
+
+	cp /etc/bind/$DBZONE /tmp/$DBZONE.tmp
+	for i in `cat $TMPFILE`
+	do
+		cat /tmp/$DBZONE.tmp | sed "/$i/d" > /tmp/$DBZONE.tmp.bkp
+		cat /tmp/$DBZONE.tmp.bkp > /tmp/$DBZONE.tmp
+
+		#delete virtual host
+		CUSDOMAIN="$i.$MAINDOMAIN" 
+		rm /etc/apache2/sites-available/$CUSDOMAIN
+		rm -fr /etc/apache2/sites-enabled/$CUSDOMAIN
+
+		rm -fr /var/www/$CUSDOMAIN
+		rm -fr /etc/apache2/ssl/$CUSDOMAIN
+	done
+
+	SERIAL=`cat /tmp/${DBZONE}.tmp.bkp | grep -i "Serial" |sed -e "s/[^0-9]//g"`
+	NEWSERIAL=`expr ${SERIAL} + 1` 
+
+	cat /tmp/$DBZONE.tmp.bkp | sed -e "s/${SERIAL}/${NEWSERIAL}/g" > /tmp/$DBZONE.tmp
+	rm /tmp/$DBZONE.tmp.bkp
+	mv /tmp/$DBZONE.tmp /etc/bind/$DBZONE
+		    
+	/etc/init.d/bind9 reload
+	/etc/init.d/apache2 reload
+		    
+	#dump servers table
+	cd /home/thinkcube/thinkcube.repo/tc_virtman/scripts/
+
+	source ./db.conf.sh
+	mysqldump -u $DB_USER -p$DB_PASS tcvm tcvm_app_server > /tmp/server.sql
+
+	#Install tcvm database
+	make
+	#updateservers data
+	mysql -u $DB_USER -p$DB_PASS tcvm < /tmp/server.sql
+	rm /tmp/server.sql
+	;;
+
+	*)
+        echo "Usage: modproxy {create|destroy} {port} {domain} {webappip}"
+        exit 1
+    ;;
+esac

@@ -1,0 +1,39 @@
+#<VirtualHost RRINFRAIPRR:80>
+<VirtualHost *:80>
+ServerName RRDOMAINNAMERR:80
+DocumentRoot /var/www/RRDOMAINNAMERR
+       <Directory /var/www/RRDOMAINNAMERR>
+       	Options Indexes FollowSymLinks MultiViews
+       	AllowOverride All 
+       	Order allow,deny
+       	allow from all
+       </Directory>
+
+       ProxyPass / http://RRWEBAPPIPRR:NNNN/
+       ProxyPassReverse / http://RRWEBAPPIPRR:NNNN/ 
+       
+</VirtualHost>
+
+#<VirtualHost RRINFRAIPRR:443>
+<VirtualHost *:443>
+ServerName RRDOMAINNAMERR:443
+DocumentRoot /var/www/RRDOMAINNAMERR
+       <Directory /var/www/RRDOMAINNAMERR>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+       </Directory>
+
+	SSLProxyEngine on
+	SSLEngine On
+        SSLCertificateFile /etc/apache2/ssl/RRDOMAINNAMERR/thinkcube.net.crt
+        SSLCertificateKeyFile /etc/apache2/ssl/RRDOMAINNAMERR/thinkcube.net.key
+	SSLProxyVerify none
+       ProxyPass / https://RRWEBAPPIPRR:MMMM/
+       ProxyPassReverse / https://RRWEBAPPIPRR:MMMM/
+
+
+</VirtualHost>
+
+
