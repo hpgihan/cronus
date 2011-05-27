@@ -1,0 +1,49 @@
+#!/bin/bash
+
+echo 'Starting Tenants Server'
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
+case "$1" in
+start)
+		FILES="/home/cust*"
+		for f in $FILES
+		do
+				PORT=$(echo basename $f | sed 's/.*[^0-9]\([0-9][0-9]*\).*/\1/g')
+		        if [ ! -d /etc/thinkcube ];then
+    		        mkdir /etc/thinkcube
+           			mkdir /etc/thinkcube/disabled_customers
+		        fi
+				if [ -f /etc/thinkcube/disabled_customers/${PORT} ];then
+					echo "User $f disabled"
+				else
+					echo "Starting $f apache server..."
+  				# take action on each file. $f store current file name
+			 			if [ ! -f $f/etc/apache2/apache2.conf ];then
+                			echo "Could not find user apache config"
+		        		else
+  							/usr/local/sbin/apachectl -f $f/etc/apache2/apache2.conf -k stop
+							/bin/sleep 10
+  							/usr/local/sbin/apachectl -f $f/etc/apache2/apache2.conf -k start
+       		 			fi
+					/bin/sleep 10
+					echo "Starting $f mysql server"
+					ID=`expr ${PORT} - 8080`
+					/usr/local/bin/mysqld_multi start ${ID}
+					/bin/sleep 90
+  			#		/usr/local/sbin/apachectl -f $f/etc/apache2/apache2.conf -k start
+				fi
+		done
+		/bin/sleep 5
+        /usr/local/sbin/apachectl -f /usr/local/etc/apache22/httpd.conf -k start
+	
+	    /bin/sleep 5
+        ;;
+stop)
+        kill -9 `cat /var/run/foobar.pid`
+        ;;
+*)
+        echo "Usage: `basename $0` {start|stop}" >&2
+        exit 64
+        ;;
+esac
+
+exit 0
