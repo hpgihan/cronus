@@ -14,7 +14,7 @@ function create ($domain, $port, $webappip) {
 		$retval = false;
 
 	if ($retval) {
-		$retval = exec("cd $shell_path && sudo ./modproxy create $domain $port $webappip", $output, $retval1);
+		exec("cd $shell_path && sudo ./modproxy create $domain $port $webappip", $output, $retval1);
         $retval = !$retval1;
 	}
 	
@@ -32,7 +32,8 @@ function destroy ($domain) {
 		$retval = false;
 
 	if ($retval) {
-		$retval = exec("cd $shell_path && sudo ./modproxy destroy $domain");
+		exec("cd $shell_path && sudo ./modproxy destroy $domain", $output, $retval1);
+        $retval = !$retval1;
 	}
 	
 	return $retval;
@@ -42,7 +43,7 @@ function destroy ($domain) {
 function reset(){
 	global $shell_path;
 
-	$retval = exec("cd $shell_path && sudo ./modproxy reset");
-
+	exec("cd $shell_path && sudo ./modproxy reset", $output, $retval1);
+    $retval = !$retval1;
 	return $retval;	
 }
