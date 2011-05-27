@@ -1,6 +1,6 @@
 dbhost = 'localhost'
-dbuser = 'root'
-dbpasswd = 'thinkcube'
+dbuser = 'XXDBUSERXX'
+dbpasswd = 'XXDBPASSXX'
 dbname = 'platform'
 
 SERVER_STATUS_UP = 1

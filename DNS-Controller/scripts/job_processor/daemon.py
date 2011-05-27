@@ -150,8 +150,10 @@ class TCVMDaemon(Daemon):
 			
 
 if __name__ == "__main__":
-	daemon = TCVMDaemon('/tmp/tcvm_daemon.pid')
-	#daemon = TCDaemon(os.getcwd()+'/.tc-daemon.pid')
+	#daemon = TCVMDaemon('/tmp/tcvm_daemon.pid')
+	basedir = os.path.split(sys.argv[0])[0]
+	pid_file = os.path.join(os.getcwd(), basedir, '.tc-daemon.pid')
+	daemon = TCVMDaemon(pid_file)
 	if len(sys.argv) == 2:
 		if 'start' == sys.argv[1]:
 			daemon.start()

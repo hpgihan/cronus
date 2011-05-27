@@ -6,3 +6,109 @@ if [ -d /opt/platform/ ] ; then
     echo "Please Delete directory /opt/platform to proceed. Exiting"
     #exit 1
 fi
+
+echo "Creating directory /opt/platform"
+
+echo "Copying daemon processors to /opt/platform/scripts"
+if [ ! -d /opt/platform/scripts ] ; then
+    sudo mkdir -p /opt/platform/scripts
+fi
+
+sudo cp -r job_processor /opt/platform/scripts
+sudo cp -r server_monitor /opt/platform/scripts
+
+echo "Copying required scripts to /opt/platform/shell"
+if [ ! -d /opt/platform/shell ] ; then
+    sudo mkdir -p /opt/platform/shell
+fi
+
+cd ../shell
+sudo cp -r * /opt/platform/shell
+
+echo "Copying command scripts to /opt/platform/control"
+if [ ! -d /opt/platform/control ] ; then
+    sudo mkdir -p /opt/platform/control
+fi
+
+cd ../lib/
+sudo cp -r TenantHandlers /opt/platform/control
+
+cd ../scripts
+
+echo "Enter your domain (ex- thinkcube.net)"
+read domain
+echo "Writing DNS file db.platform to /etc/bind"
+
+if [ ! -d /etc/bind ] ; then
+    echo "No DNS server installed. Installing bind9"
+    sudo apt-get -y --force-yes install bind9
+fi
+
+cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" > /etc/bind/db.platform
+
+echo "Adding db.platform to default zones"
+
+cat zone.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/bind/named.conf.default-zones
+
+echo "Installing databases"
+cd ../data
+echo "Enter mysql username"
+read username
+echo "Enter mysql password"
+read password
+
+mysql -u ${username} --password=${password} < platform.sql 
+
+cd ..
+
+cd /opt/platform/control/TenantHandlers/shell
+
+sudo cat settings > settings.tmp
+sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > settings
+sudo rm settings.tmp
+
+cd -
+
+echo "Replacing database settings in daemon processors and starting them"
+
+cd /opt/platform/scripts
+
+sudo mv job_processor/config.py job_processor/config.py.tmp
+sudo cat job_processor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > job_processor/config.py
+sudo rm job_processor/config.py.tmp
+sudo python job_processor/daemon.py start
+
+sudo mv server_monitor/config.py server_monitor/config.py.tmp
+sudo cat server_monitor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > server_monitor/config.py
+sudo rm server_monitor/config.py.tmp
+sudo python server_monitor/daemon.py start
+
+cd -
+
+echo "Installing Identity Provider to /var/idp"
+cd lib
+sudo cp -r idp /var
+
+echo "Enter document root of your webserver"
+read doc_root
+
+echo "Copying REST api to ${doc_root}/api"
+if [ ! -d /var/www/api ] ; then
+    sudo mkdir ${doc_root}/api
+fi
+
+cd ../../
+sudo cp -r api ${doc_root}
+
+cd DNS-Controller/rest
+sudo cp -r dns ${doc_root}/api/
+sudo cp -r idp ${doc_root}/api/
+
+cd ../scripts
+
+echo "Adding proxy restart script"
+sudo cp proxystart /etc/init.d
+sudo update-rc.d proxystart defaults
+
+echo "DNS-Controller succesfully installed"
+exit 0

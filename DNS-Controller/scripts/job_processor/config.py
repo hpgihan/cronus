@@ -1,6 +1,6 @@
 dbhost = 'localhost'
-dbuser = 'root'
-dbpasswd = 'thinkcube'
+dbuser = 'XXDBUSERXX'
+dbpasswd = 'XXDBPASSXX'
 dbname = 'platform'
 
 job_type_deploy = 1
