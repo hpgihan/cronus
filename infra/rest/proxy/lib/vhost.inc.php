@@ -24,7 +24,6 @@ function create ($domain, $port, $webappip) {
 // Destroy infra deployment
 function destroy ($domain) {
 	global $shell_path;
-
 	$retval = true;
 
 	// Validate input
