@@ -17,7 +17,7 @@ function delete_user($username){
         $retval = true;
         if ($retval) {
             exec("cd $shell_path && sudo ./usermgmt delete $username", $output, $retval1);
-            $retval = !$retval;
+            $retval = !$retval1;
         }
 
         return $retval;
