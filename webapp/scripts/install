@@ -35,9 +35,10 @@ cp -r api ${doc_root}
 cd webapp/rest
 cp -r tenants ${doc_root}/api/
 
-echo "Copying Startup script to /etc/init.d"
+echo "Copying Startup script; {tenants_start} to /etc/init.d"
 cd ../scripts
 cp tenants_start /etc/init.d
+update-rc.d tenants_start defaults
 
 echo "Tenants Server successfully installed"
 exit 0
