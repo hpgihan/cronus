@@ -8,7 +8,7 @@ function create ($port, $diskquota) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && ./platformdeploy create $port $diskquota", $output, $retval1);
+		exec("cd $shell_path && sudo ./platformdeploy create $port $diskquota", $output, $retval1);
         $retval = !$retval1;
 	}
 	
