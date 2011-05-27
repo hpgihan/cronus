@@ -1,0 +1,8 @@
+#!/bin/bash
+
+DESCRIPTS=`dirname $0`
+
+if [ -d /opt/platform/ ] ; then
+    echo "Please Delete directory /opt/platform to proceed. Exiting"
+    #exit 1
+fi
