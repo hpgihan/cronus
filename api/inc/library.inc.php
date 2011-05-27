@@ -41,7 +41,6 @@ function check_integrity($auth){
 	$key = 'ca899e52f5d93bb1cdb623970c894f4cd17eeb3ea752e48a74bbacdb9ef18c08';
 
 	$request = $_SERVER['REQUEST_URI'];
-	$request =str_replace("/$auth", "", "$request");echo "<br>";
 	$server = $_SERVER['SERVER_NAME'];
 	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5)) =='https'? 'https' : 'http';
 
