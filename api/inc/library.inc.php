@@ -48,7 +48,7 @@ function check_integrity($auth){
 
 	$newauth = md5($key."_".$url);
 
-	if($newauth == $auth){
+	if(trim($newauth) == trim($auth)){
 		return true;
 	}
 	else{

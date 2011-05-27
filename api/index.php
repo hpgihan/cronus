@@ -3,11 +3,8 @@
 /*** Controller of the protocol ***/
 include('inc/library.inc.php');
 
-$_POST['token']="cc77781e4ed0528f4554197fc58c6e7a";
 $auth = $_POST["token"];
-//echo $auth;
 $isvalid_url = check_integrity($auth);
-$isvalid_url = true;
 
 $arg = array();
 
