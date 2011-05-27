@@ -8,11 +8,9 @@ if [ -d /opt/platform/ ] ; then
 fi
 
 echo "Creating directory /opt/platform"
-#mkdir /opt/platform
-
 echo "Copying required scripts to /opt/platform/shell"
 if [ ! -d /opt/platform/shell ] ; then
-    mkdir /opt/platform/shell
+    mkdir -p /opt/platform/shell
 fi
 
 cd ../shell
