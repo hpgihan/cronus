@@ -1,0 +1,34 @@
+#!/bin/bash
+
+DESCRIPTS=`dirname $0`
+
+if [ -d /opt/platform/ ] ; then
+    echo "Please Delete directory /opt/platform to proceed. Exiting"
+    #exit 1
+fi
+
+echo "Creating directory /opt/platform"
+echo "Copying required scripts to /opt/platform/shell"
+if [ ! -d /opt/platform/shell ] ; then
+    mkdir -p /opt/platform/shell
+fi
+
+cd ../shell
+cp -r * /opt/platform/shell
+
+echo "Enter document root of your webserver"
+read doc_root
+
+echo "Copying REST api to ${doc_root}/api"
+if [ ! -d /var/www/api ] ; then
+    mkdir ${doc_root}/api
+fi
+
+cd ../../
+cp -r api ${doc_root}
+
+cd infra/rest
+cp -r proxy ${doc_root}/api/
+
+echo "Proxy Server successfully installed"
+exit 0

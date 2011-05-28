@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # DNS Zone info
-DBZONE="db.thinkcube.net"
+DBZONE="db.platform"

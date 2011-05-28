@@ -1,0 +1,10 @@
+;
+; BIND data file for platform dns interface
+;
+$TTL    60
+@       IN      SOA     ns1.XXDOMAINXX. root.XXDOMAINXX. (
+                         2011052007     ; Serial
+                         3H             ; Refresh
+                         15M            ; Retry
+                         1W             ; Expire
+                         1D      )      ; Negative Cache TTL

@@ -4,6 +4,4 @@ dbname="platform"
 dbuser="root"
 dbpasswd="thinkcube"
 
-server_table="tcvm_app_server"
-
 server_types="infra webapp voip mail"

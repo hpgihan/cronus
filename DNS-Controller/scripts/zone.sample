@@ -1,0 +1,4 @@
+zone "XXDOMAINXX" {
+        type master;
+        file "/etc/bind/db.platform";
+};
