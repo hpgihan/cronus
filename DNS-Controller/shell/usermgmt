@@ -1,28 +1,47 @@
 #!/bin/bash
 
-# IDP user management
-#usage usermgmt {add|delete} {USERNAME} [{PASSWORD}]
+# IDP/LDAP user management
+# usage: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]
+# 
+# Create a file called settings at the same directory level as this script
+# Example settings file entries for searchbase dc=thinkcube,dc=net
+#  with rootuser admin and root password dirtysecret.
+#
+# DC1=thinkcube
+# DC2=net
+# ROOTUSER=admin
+# LDAPPASSWD=dirtysecret
+
 DESCRIPTS=`dirname $0`
 source $DESCRIPTS/settings
 
 
-if [ ! $DBUSER ] || [ ! $DBPASSWD ] || [ ! $USERSTORE ] ; then
+if [ ! $ROOTUSER ] || [ ! $LDAPPASSWD ] || [ ! $DC1 ] || [ ! $DC2 ] ; then
     echo "Missing database settings. Add them in ${DESCRIPTS}/settings"
     exit 1
 fi
 
-USERNAME=$2
-PASSWORD=$3
+OU=$2
+LDAPUID=$3
+SN=$4
+CN=$LDAPUID
+USERPASSWORD=$5
+MAIL=${LDAPUID}@${OU}.${DC1}.${DC2}
+
+SEARCHBASE=dc=${DC1},dc=${DC2}
+BINDDN=cn=${ROOTUSER},${SEARCHBASE}
 
 case $1
 in
     add)
-        mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "INSERT INTO users (username, password) VALUES ('${USERNAME}', md5('$PASSWORD'))"
+	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nobjectClass: inetOrgPerson\nuid: ${LDAPUID}\nsn: ${SN}\ncn: ${CN}"\
+		"\nuserPassword: ${USERPASSWORD}\nmail: ${MAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
+	# Whoever calls this must add a password less user to Zimbra!
     ;;
     delete)
-        mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "DELETE FROM users WHERE username='${USERNAME}'"
+	ldapdelete -w $LDAPPASSWD -D $BINDDN "uid=${LDAPUID},ou=${OU},${SEARCHBASE}"
     ;;
     *)
-    echo "USAGE usermgmt {add|delete} {USERNAME} [{PASSWORD}]"
+    echo "USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]"
     exit 1
-esac   
+esac
