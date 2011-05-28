@@ -36,7 +36,7 @@ function domain_delete(){
 
     local rest_url="https://${dns_ip}/api/dns/action/domain/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"subdomain\":\"'${subdomain}'\", \"webappid\":\"'${webapp_ip}'\" , \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
+    local values='{\"subdomain\":\"'${subdomain}'\", \"webappid\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
