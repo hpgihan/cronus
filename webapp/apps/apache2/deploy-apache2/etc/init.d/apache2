@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+# Apache 2 virtualize
+# Starts multiple instances of Apache2 using different ports.
+# Usage : /etc/init.d/apache2 {start|stop|restart|reload} {8081|8082|8083 etc.}
+
+
+PORT=$2
+SPORT=`expr $2 + 1000`
+
+case $1 in
+	start)
+		echo "Starting web server on ports $PORT and $SPORT"
+
+		/usr/sbin/apache2ctl -f /home/cust${PORT}/etc/apache2/apache2.conf -k $1
+	;;
+	stop)
+		echo "Stopping web server on ports $PORT and $SPORT"
+		/usr/sbin/apache2ctl -f /home/cust${PORT}/etc/apache2/apache2.conf -k $1
+	;;
+	*)
+		echo "Usage: /etc/init.d/apache2 {start|stop|restart|reload} {8081|8082|8083 etc.}"
+		exit 1
+	;;
+esac
