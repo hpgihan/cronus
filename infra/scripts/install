@@ -2,6 +2,11 @@
 
 DESCRIPTS=`dirname $0`
 
+echo "Creating default-ssl virtual host in /etc/apache2/sites-available"
+sudo cp default-ssl.sample /etc/apache2/sites-available/00000-default-ssl
+sudo a2ensite /etc/apache2/sites-available
+sudo /etc/init.d/apache2 reload
+
 if [ -d /opt/platform/ ] ; then
     echo "Please Delete directory /opt/platform to proceed. Exiting"
     #exit 1
@@ -15,6 +20,7 @@ fi
 
 cd ../shell
 cp -r * /opt/platform/shell
+
 
 echo "Enter document root of your webserver"
 read doc_root
