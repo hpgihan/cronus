@@ -39,7 +39,7 @@ function destroy ($domain) {
 
 }
 
-function reset(){
+function reset_proxy(){
 	global $shell_path;
 
 	exec("cd $shell_path && sudo ./modproxy reset", $output, $retval1);

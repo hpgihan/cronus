@@ -36,7 +36,7 @@ function idp_user_add(){
 
     local rest_url="https://${idp_dns}/api/idp/action/user/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
+    local values='{\"username\":\"'${username}'\", \"password\":\"'${password}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
@@ -57,6 +57,11 @@ do
 
     -username)
       username=$2
+      shift 2
+    ;;
+
+    -password)
+      password=$2
       shift 2
     ;;
 
@@ -81,7 +86,7 @@ if [ ! $queued ] ; then
     exit 1
 fi
 
-if [ ! $username ] ; then
+if [ ! $username ] || [ ! $password ]; then
     echo "Username of Tanent should be provided'. Exiting"
     exit 1
 fi

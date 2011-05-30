@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# usage add-server -type [infra|webapp|...] -ip IPADDRESS
+# usage add-server -type [infra|webapp|dns|idp] -ip IPADDRESS -dns DOMIANNAME
 
 DESCRIPTS=`dirname $0`
 
@@ -59,7 +59,7 @@ do
       shift 2
     ;;
 
-    -domain-name)
+    -dns)
       domain=$2
       shift 2
     ;;
@@ -123,7 +123,12 @@ if [ $server_type == "infra" ] ; then
     else
         result=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select MAX(cluster_id) from ${server_table}"`
         highest_cluster=`echo $result | awk -F ' ' '{print $2}'`
-        cluster=`expr $highest_cluster + 1`
+    
+        if [ $highest_cluster == NULL ] || [ $highest_cluster -eq 0 ] ; then
+            cluster=1
+        else
+            cluster=`expr $highest_cluster + 1`
+        fi
     fi
 fi
 
@@ -145,6 +150,14 @@ if [ $server_type == "webapp" ] ; then
     fi
 fi
 
+if [ ! $server_type == 'infra' ] && [ ! $server_type == 'webapp' ] ; then
+    cluster=0
+fi 
+
+if [ $server_type == "idp" ] && [ ! $domain ] ; then
+    echo "IDP Server should have a DNS name. Exiting"
+    exit 1
+fi
 # validate capacity. Should be an integer 
 if [[ ! $capacity =~ ^[0-9]+$ ]] ; then
     echo "invalid integer. Exiting."
@@ -158,4 +171,4 @@ echo "Cluster ID - $cluster"
 echo "Capacity - $capacity"
 
 # adds the new server entry
-#mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${server_table} (server_ip, server_type, server_capacity, remaining_capacity, cluster_id) values ('${ip}', '${server_type}', ${capacity}, ${capacity}, ${cluster})"
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${server_table} (server_ip, server_type, server_dns, server_capacity, remaining_capacity, cluster_id) values ('${ip}', '${server_type}', '${domain}', ${capacity}, ${capacity}, ${cluster})"

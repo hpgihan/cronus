@@ -8,3 +8,9 @@ $TTL    60
                          15M            ; Retry
                          1W             ; Expire
                          1D      )      ; Negative Cache TTL
+
+@               IN      NS      ns1
+@               IN      MX  5   mail
+@               IN      MX  20  mail
+@               IN      A       XXDNSIPXX
+ns1             IN      A       XXDNSIPXX

@@ -61,7 +61,7 @@ function delete_dns($subdomain, $infraip, $webappip) {
 
 	if ($retval) {
 		exec("cd $shell_path && sudo ./dns delete $subdomain $infraip $webappip", $output, $retval1);
-        $retval = !$retval;
+        $retval = !$retval1;
 	}
 	
 	return $retval;

@@ -21,7 +21,7 @@ function proxy_destroy(){
     local domain=$2
     local infra_ip=$3
 
-    local rest_url="https://${webapp_ip}/api/proxy/action/vhost/destroy"
+    local rest_url="https://${infra_ip}/api/proxy/action/vhost/destroy"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
@@ -36,7 +36,7 @@ function domain_delete(){
 
     local rest_url="https://${dns_ip}/api/dns/action/domain/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"subdomain\":\"'${subdomain}'\", \"webappid\":\"'${webapp_ip}'\" , \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
+    local values='{\"subdomain\":\"'${subdomain}'\", \"webappip\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
