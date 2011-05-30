@@ -5,7 +5,7 @@
 PROGRAM="modproxy"
 DOMAIN=$2
 PORT=$3
-SPORT=`expr $2 + 1000`
+SPORT=`expr $3 + 1000`
 DEPSCRIPTS=`dirname $0`
 WEBAPPIP=$4
 
