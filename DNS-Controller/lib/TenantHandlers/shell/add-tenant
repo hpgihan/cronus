@@ -93,7 +93,7 @@ function add_idp_user_deployment()
 
     local rest_url="https://${idp_dns}/api/idp/action/user/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"ou\":\"'${subdomain}'\", \"last_name\":\"'${lastname}'\", \"token\":\"'${token}'\"}'
+    local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"subdomain\":\"'${subdomain}'\", \"last_name\":\"'${lastname}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
