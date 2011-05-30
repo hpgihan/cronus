@@ -44,11 +44,30 @@ if [ ! -d /etc/bind ] ; then
     sudo apt-get -y --force-yes install bind9
 fi
 
-cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" > /etc/bind/db.platform
+echo "Enter your ethernet interface"
+read ethernet_interface
+dns_ip=`ifconfig ${ethernet_interface} | grep -o 'inet addr[^ ]\+'| sed -e "s/[^0-9\.]//g"`
+
+sudo cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDNSIPXX/${dns_ip}/g" > /etc/bind/db.platform
 
 echo "Adding db.platform to default zones"
 
-cat zone.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/bind/named.conf.default-zones
+sudo cat zone.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/bind/named.conf.default-zones
+
+echo "Adding IDP DNS in db.platform"
+
+cd /opt/platform/shell
+
+sudo ./dns add idp ${dns_ip}
+
+cd -
+
+echo "Adding SSL Virtual Host for IDP at idp.${domain}. Make sure SSL is enabled at port 443"
+
+sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/apache2/sites-available/default-ssl
+sudo a2ensite /etc/apache2/sites-available/default-ssl
+sudo a2enmod ssl rewrite headers
+sudo /etc/init.d/apache2 restart
 
 echo "Installing databases"
 cd ../data
