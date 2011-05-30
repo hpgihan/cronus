@@ -93,7 +93,7 @@ echo "Replacing database settings in daemon processors and starting them"
 cd /opt/platform/scripts
 
 sudo mv job_processor/config.py job_processor/config.py.tmp
-sudo cat job_processor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > job_processor/config.py
+sudo cat job_processor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" | sed -e "s/XXCNTRLIPXX/${dns_ip}/g" > job_processor/config.py
 sudo rm job_processor/config.py.tmp
 sudo python job_processor/daemon.py start
 
