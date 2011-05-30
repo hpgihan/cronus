@@ -89,6 +89,7 @@ function add_idp_user_deployment()
     local username=$3
     local password=$4
     local subdomain=$5
+    local lastname=$6
 
     local rest_url="https://${idp_dns}/api/idp/action/user/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
@@ -246,6 +247,21 @@ if [ ${port} == "NULL" ] ; then
     fi
 fi
 
+# determine lastname of customer. This is needed for IDP server
+lastname_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT lastname from ${user_table} WHERE tenant_id = '${tenant_id}' and tenant_id = 0"`
+lastname=`echo ${lastname_row} | awk -F ' ' '{print $2}'`
+lastname="herath"
+
+if [ ${port} == "NULL" ] ; then
+    port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${tenant_port_table} WHERE webapp_id = ${webapp_id}"`
+    port=`echo $port_row | awk -F ' ' '{print $2}'`
+    if [ ${port} == "NULL" ] ; then
+        port=${start_port}
+    else
+        port=`expr $port + 1`
+    fi
+fi
+
 echo "Following tenant would be added"
 echo "Tenant ID - $tenant_id"
 echo "Domain - $domain"
@@ -253,6 +269,9 @@ echo "Subdomain - $subdomain"
 echo "Cluster - $cluster_id"
 echo "Webapp ID - $webapp_id"
 echo "Port - $port"
+echo "Username - $username"
+echo "Password - $password"
+echo "Last Name - $lastname"
 echo "Disk Quota - $diskquota"
 
 # add new tenant

@@ -7,6 +7,7 @@ dbpasswd="XXDBPASSXX"
 server_table="servers"
 tenant_table="tenants"
 tenant_port_table="tenant_ports"
+user_table='tenant_users'
 job_table="job_queue"
 deployment_table="deployment_queue"
 
