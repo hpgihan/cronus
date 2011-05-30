@@ -156,8 +156,10 @@ class JobHandler(threading.Thread):
                 else:
                     params = None
                 try:
+                    print 'Calling - ' + dep.url
                     url = urllib.urlopen(dep.url, params)
                     res = url.read()
+                    print 'Result - ' + res
                     url.close()
                     res_list = json.loads(res)
                     status = res_list['status']
