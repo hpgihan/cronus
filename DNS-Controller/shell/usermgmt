@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # IDP/LDAP user management
-# usage: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]
+# USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]
 # 
 # Create a file called settings at the same directory level as this script
 # Example settings file entries for searchbase dc=thinkcube,dc=net
@@ -36,7 +36,7 @@ in
     add)
 	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nobjectClass: inetOrgPerson\nuid: ${LDAPUID}\nsn: ${SN}\ncn: ${CN}"\
 		"\nuserPassword: ${USERPASSWORD}\nmail: ${MAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
-	# Whoever calls this must add a password less user to Zimbra!
+	# Whoever calls this must add a password-less user to Zimbra!
     ;;
     delete)
 	ldapdelete -w $LDAPPASSWD -D $BINDDN "uid=${LDAPUID},ou=${OU},${SEARCHBASE}"
