@@ -156,10 +156,12 @@ class JobHandler(threading.Thread):
                 else:
                     params = None
                 try:
-                    res = urllib2.urlopen(dep.url, params).read()
+                    url = urllib.urlopen(dep.url, params)
+                    res = url.read()
+                    url.close()
                     res_list = json.loads(res)
                     status = res_list['status']
-                except urllib2.URLError:
+                except IOError:
                     print 'Wrong url'
                     status = 'fail'
                 except ValueError:
@@ -191,6 +193,14 @@ class JobHandler(threading.Thread):
         else:
             print ' Job ' + str(self.job.job_id) + ' successful'
             self.job.status = 3
+        try:
+            params = urllib.urlencode(json.loads('{"jobid":"'+ str(self.job.job_id) + '", "status":"' + str(self.job.status) + '"}'))
+            url = urllib2.urlopen(config.controller_ip, params)
+            url.close()
+        except IOError:
+            print 'Wrong url. Job finalizing call failed'
+        except:
+            print 'Error calling URL. Job finalizing call failed'
         self.update()
 
     def update(self):
