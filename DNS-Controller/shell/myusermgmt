@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# MySQL user management
+# USAGE: usermgmt {add|delete} {USERNAME} [{PASSWORD}]
+#
+# Create a file called settings at the same directory level as this script
+# Example settings file will look like
+#
+# DBUSER=thinkcube
+# DBPASSWORD=mypassword
+# USERSTORE=
+
+DESCRIPTS=`dirname $0`
+source $DESCRIPTS/settings
+
+
+if  [ ! $DBUSER ] || [ ! $DBPASSWD ] || [ ! $USERSTORE ] ; then
+    echo "Missing database settings. Add them in ${DESCRIPTS}/settings"
+    exit 1
+fi
+
+USERNAME=$2;
+PASSWORD=$3;
+
+case $1
+in
+    add)
+	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "INSERT INTO users (username, password) VALUES ('${USERNAME}', md5('$PASSWORD'))"
+    ;;
+    delete)
+	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "DELETE FROM users WHERE username='${USERNAME}'"
+    ;;
+    *)
+    echo "USAGE: myusermgmt {add|delete} {USERNAME} [{PASSWORD}]"
+    exit 1
+esac
