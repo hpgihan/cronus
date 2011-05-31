@@ -39,6 +39,8 @@ in
         mv metadata/saml20-idp-remote.php metadata/saml20-idp-remote.php.tmp
         cat metadata/saml20-idp-remote.php.tmp | sed -e "s/XXXIDPHOSTXXX/$IDPHOST/g" | sed -e "s/XXXIDPCERTXXX/$IDPCERT/g" > metadata/saml20-idp-remote.php
         rm metadata/saml20-idp-remote.php.tmp
+
+        chown -R cust${PORT}:cust${PORT} /home/cust${PORT}/var/samlservice/log
     ;;
 
     *)
