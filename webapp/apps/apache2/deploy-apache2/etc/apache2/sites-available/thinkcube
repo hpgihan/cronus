@@ -33,6 +33,14 @@
 	#Alias /sltportal /var/www/sltportal
 
 	include /home/custNNNN/etc/apache2/fileshare/*.conf
+
+    Alias /simplesaml /home/custNNNN/var/samlservice/www
+    <Directory /home/custNNNN/var/samlservice/www/>
+    AllowOverride All
+    Order Allow,Deny
+    Allow from All
+    </Directory>
+    
 </VirtualHost>
 
 <VirtualHost *:NNNN>
@@ -78,5 +86,12 @@
 	#Alias /gallery /var/www/gallery
 	#Alias /hrm /var/www/orangehrm
 	#Alias /sltportal /var/www/sltportal
+
+    Alias /simplesaml /home/custNNNN/var/samlservice/www
+    <Directory /home/custNNNN/var/samlservice/www/>
+    AllowOverride All
+    Order Allow,Deny
+    Allow from All
+    </Directory>
 
 </VirtualHost>
