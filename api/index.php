@@ -10,7 +10,7 @@ $arg = array();
 
 if($_REQUEST['q']) {
     // Match URI components
-    preg_match('/^([sc]\/)?([a-zA-Z0-9][a-zA-Z0-9\/\-+%.#!@^$*\s]*\/)?([a-zA-Z0-9-+%.#!@^$*\s]+)$/', $_REQUEST['q'], $m) or die('Bad URL') ;
+    preg_match('/^([sc]\/)?([a-zA-Z0-9][a-zA-Z0-9\/\-+%._#!@^$*\s]*\/)?([a-zA-Z0-9-+%._#!@^$*\s]+)$/', $_REQUEST['q'], $m) or die('Bad URL') ;
 }
 // Extract URI components
 $p = preg_split('/\//', $m[0]);
