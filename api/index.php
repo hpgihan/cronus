@@ -32,9 +32,9 @@ if($isvalid_url){
 		include($source);
 	}
 	else{
-    print json_encode(array('status'=>'fail'));
+    print json_encode(array('status'=>'fail','message'=>'Invalid API call.'));
 	}
 }
 else{
-    print json_encode(array('status'=>'fail'));
+    print json_encode(array('status'=>'fail','message'=>'Invalid API key.'));
 }
