@@ -6,10 +6,12 @@ function add($subdomain, $username, $lastname, $password) {
 
 	if ($retval) {
 		//exec("cd $shell_path && sudo ./usermgmt add $subdomain $username $lastname $password", $output, $retval1);
+		echo "cd $shell_path && sudo ./myusermgmt add $username $password";
+		exit;
 		exec("cd $shell_path && sudo ./myusermgmt add $username $password", $output, $retval2);
         	
 		//$retval = ! [[ $retval1 && $retval2 ]];
-        $retval = !$retval2
+        $retval = !$retval2;
 	}
 	
 	return $retval;
@@ -24,7 +26,7 @@ function delete_user($subdomain, $username){
 	    exec("cd $shell_path && sudo ./myusermgmt delete $username", $output, $retval2);
 
             //$retval = ! [[ $retval1 && $retval2 ]];
-            $retval = !$retval2
+            $retval = !$retval2;
         }
 
         return $retval;
@@ -39,7 +41,7 @@ function update($subdomain, $username, $password){
 	    exec("cd $shell_path && sudo ./myusermgmt delete $username", $output, $retval2);
 
             //$retval = ! [[ $retval1 && $retval2 ]];
-            $retval = !$retval2
+            $retval = !$retval2;
         }
 
         return $retval;
