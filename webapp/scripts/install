@@ -38,5 +38,4 @@ sudo cp -r tenants ${doc_root}/api/
 #sudo cp tenants_start /etc/init.d
 #sudo update-rc.d tenants_start defaults
 
-echo "Tenants Server successfully installed"
-exit 0
+echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/platform/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"

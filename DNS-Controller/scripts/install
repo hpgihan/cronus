@@ -129,5 +129,4 @@ echo "Adding proxy restart script"
 sudo cp proxystart /etc/init.d
 sudo update-rc.d proxystart defaults
 
-echo "DNS-Controller succesfully installed"
-exit 0
+echo "DNS-Controller succesfully installed. A sample certificate for IDP was added in /var/idp/cert/server.crt. Replace it with you own certificate in production environment"
