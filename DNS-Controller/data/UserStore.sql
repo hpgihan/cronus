@@ -28,7 +28,7 @@ USE `UserStore`;
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `username` varchar(30) NOT NULL,
+  `username` varchar(100) NOT NULL,
   `password` text NOT NULL,
   PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
