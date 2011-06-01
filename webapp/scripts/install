@@ -2,22 +2,22 @@
 
 DESCRIPTS=`dirname $0`
 
-if [ -d /opt/platform/ ] ; then
-    echo "Please Delete directory /opt/platform to proceed. Exiting"
+if [ -d /opt/cronus/ ] ; then
+    echo "Please Delete directory /opt/cronus to proceed. Exiting"
     #exit 1
 fi
 
-echo "Creating directory /opt/platform"
-echo "Copying required scripts to /opt/platform/shell"
-if [ ! -d /opt/platform/shell ] ; then
-    sudo mkdir -p /opt/platform/shell
+echo "Creating directory /opt/cronus"
+echo "Copying required scripts to /opt/cronus/shell"
+if [ ! -d /opt/cronus/shell ] ; then
+    sudo mkdir -p /opt/cronus/shell
 fi
 
 cd ../apps
-sudo cp -r * /opt/platform/shell
+sudo cp -r * /opt/cronus/shell
 
 cd ../shell
-sudo cp -r * /opt/platform/shell
+sudo cp -r * /opt/cronus/shell
 
 echo "Enter document root of your webserver"
 read doc_root
@@ -38,4 +38,4 @@ sudo cp -r tenants ${doc_root}/api/
 #sudo cp tenants_start /etc/init.d
 #sudo update-rc.d tenants_start defaults
 
-echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/platform/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"
+echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/cronus/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"

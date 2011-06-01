@@ -1,7 +1,7 @@
 dbhost = 'localhost'
 dbuser = 'XXDBUSERXX'
 dbpasswd = 'XXDBPASSXX'
-dbname = 'platform'
+dbname = 'cronus'
 
 job_type_deploy = 1
 job_type_package_change = 2

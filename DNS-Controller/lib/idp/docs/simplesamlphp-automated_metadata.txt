@@ -209,8 +209,7 @@ Each metadata source has the following options:
 
 
 After you have configured the metadata source, you need to give the
-web-server write access to the output directory. Depending on the
-platform, this may be done by a command similar to:
+web-server write access to the output directory.
 
 	chown www-data /var/simplesamlphp/metadata/metadata-federation/
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dbname="platform"
+dbname="cronus"
 dbuser="root"
 dbpasswd="thinkcube"
 

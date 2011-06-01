@@ -18,16 +18,16 @@ class QueueHandler:
         pass
 
     def start(self):
-        if not os.path.exists('/var/log/platform'):
-            os.makedirs('/var/log/platform')
+        if not os.path.exists('/var/log/cronus'):
+            os.makedirs('/var/log/cronus')
 
         logger_error = logging.getLogger("error_log")
-        eh = logging.FileHandler('/var/log/platform/error.log')
+        eh = logging.FileHandler('/var/log/cronus/error.log')
         eh.setLevel(logging.DEBUG)
         logger_error.addHandler(eh)
 
         logger_activity = logging.getLogger("activity_log")
-        ah = logging.FileHandler('/var/log/platform/activity.log')
+        ah = logging.FileHandler('/var/log/cronus/activity.log')
         ah.setLevel(logging.DEBUG)
         logger_activity.addHandler(ah)
 

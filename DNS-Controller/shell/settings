@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # DNS Zone info
-DBZONE="db.platform"
+DBZONE="db.cronus"

@@ -4,9 +4,9 @@
  *
  */
 
-$metadata['platform-idp'] = array (
+$metadata['cronus-idp'] = array (
 'metadata-set' => 'saml20-idp-remote',
-'entityid' => 'platform-idp',
+'entityid' => 'cronus-idp',
 'SingleSignOnService' => 'https://XXXIDPHOSTXXX/simplesaml/saml2/idp/SSOService.php',
 'SingleLogoutService' => 'https://XXXIDPHOSTXXX/simplesaml/saml2/idp/SingleLogoutService.php',
 'certData' => 'MIICgTCCAeoCCQCbOlrWDdX7FTANBgkqhkiG9w0BAQUFADCBhDELMAkGA1UEBhMC

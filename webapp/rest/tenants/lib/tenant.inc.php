@@ -8,7 +8,7 @@ function create ($port, $diskquota) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./platformdeploy create $port $diskquota", $output, $retval1);
+		exec("cd $shell_path && sudo ./cronusdeploy create $port $diskquota", $output, $retval1);
         $retval = !$retval1;
 	}
 	
@@ -26,7 +26,7 @@ function destroy($port) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./platformdeploy destroy $port", $output, $retval1);
+		exec("cd $shell_path && sudo ./cronusdeploy destroy $port", $output, $retval1);
         $retval = !$retval1;
 	}
 	
@@ -44,7 +44,7 @@ function enable($port) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./platformdeploy enable $port", $output, $retval1);
+		exec("cd $shell_path && sudo ./cronusdeploy enable $port", $output, $retval1);
         $retval = !$retval1;
 	}
 	
@@ -62,7 +62,7 @@ function disable($port) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./platformdeploy disable $port", $output, $retval1);
+		exec("cd $shell_path && sudo ./cronusdeploy disable $port", $output, $retval1);
         $retval = !$retval1;
 	}
 	

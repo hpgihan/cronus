@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Authenticate using Facebook Platform.
+ * Authenticate using Facebook.
  *
  * @author Andreas Åkre Solberg, UNINETT AS.
  * @package simpleSAMLphp
@@ -55,7 +55,7 @@ class sspmod_authfacebook_Auth_Source_Facebook extends SimpleSAML_Auth_Source {
 
 
 	/**
-	 * Log-in using Facebook platform
+	 * Log-in using Facebook
 	 *
 	 * @param array &$state  Information about the current authentication.
 	 */
