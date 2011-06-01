@@ -120,13 +120,21 @@ do
       password=$2
       shift 2
     ;;
+    -firstname)
+      firstname=$2
+      shift 2
+    ;;
+    -lastname)
+      lastname=$2
+      shift 2
+    ;;
 
     -q)
       queued=1
       shift 1
     ;;
     --help)
-      echo "usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q"
+      echo "usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -firstname FIRSTNAME -lastname LASTNAME -disk-quota DISKQUOTA -q"
       exit
     ;;
 
@@ -149,8 +157,8 @@ else
     subdomain=`echo $domain | awk -F '.' '{print $1}'`
 fi
 
-if [ ! $username ] || [ ! $password ] ; then
-    echo "Username and Password should be available. Exiting"
+if [ ! $username ] || [ ! $password ] || [ ! $firstname ] || [ ! $lastname ] ; then
+    echo "Username, Password, firstname, lastname should be available. Exiting"
     exit 1
 fi
 
@@ -247,11 +255,6 @@ if [ ${port} == "NULL" ] ; then
     fi
 fi
 
-# determine lastname of customer. This is needed for IDP server
-lastname_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT lastname from ${user_table} WHERE tenant_id = '${tenant_id}' and tenant_id = 0"`
-lastname=`echo ${lastname_row} | awk -F ' ' '{print $2}'`
-lastname="herath"
-
 if [ ${port} == "NULL" ] ; then
     port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "SELECT max(id) from ${tenant_port_table} WHERE webapp_id = ${webapp_id}"`
     port=`echo $port_row | awk -F ' ' '{print $2}'`
@@ -277,6 +280,9 @@ echo "Disk Quota - $diskquota"
 # add new tenant
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${tenant_table} (domain, subdomain, cluster_id, status) values ('${domain}', '${subdomain}', ${cluster_id}, 1)"
 
+# add new user 
+mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${user_table} (tenant_id, username, password, firstname, lastname) values (${tenant_id}, '${username}', '${password}', '${firstname}', '${lastname}')"
+
 # allocate port
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${tenant_port_table} (id, webapp_id, tenant_id, profile_id) values (${port}, ${webapp_id}, ${tenant_id}, 0)"
 
@@ -300,7 +306,7 @@ add_sp_deployment $job_id $port $domain $idp_dns $IDP_cert $webapp_ip
 add_vhost_deployment $job_id $port $domain $webapp_ip $infra_ip
 add_dns_deployment $job_id $subdomain $dns_ip $webapp_ip $infra_ip
 add_idp_sp_deployment $job_id $domain $idp_dns
-add_idp_user_deployment $job_id $domain $username $password $subdomain
+add_idp_user_deployment $job_id $domain $username $password $subdomain $lastname
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_deploy}', '${job_status_new}', ${tenant_id})"
 

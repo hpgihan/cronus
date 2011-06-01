@@ -1,8 +1,10 @@
 #!/bin/bash
 
 dbname="platform"
-dbuser="XXDBUSERXX"
-dbpasswd="XXDBPASSXX"
+dbuser="root"
+dbpasswd="thinkcube"
+#dbuser="XXDBUSERXX"
+#dbpasswd="XXDBPASSXX"
 
 server_table="servers"
 tenant_table="tenants"
