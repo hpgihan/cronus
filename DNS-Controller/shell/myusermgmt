@@ -30,6 +30,9 @@ in
     delete)
 	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "DELETE FROM users WHERE username='${USERNAME}'"
     ;;
+    change-passwd)
+	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "UPDATE users SET password=md5('${PASSWORD}') WHERE username='${USERNAME}'"
+    ;;
     *)
     echo "USAGE: myusermgmt {add|delete} {USERNAME} [{PASSWORD}]"
     exit 1
