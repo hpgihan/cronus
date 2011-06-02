@@ -1,4 +1,5 @@
 import threading
+import datetime
 import os
 import logging
 import json
@@ -135,6 +136,9 @@ class JobHandler(threading.Thread):
     def execute(self):
         ''' Executes the deployments of the job '''
         print 'Executing for job ' + str(self.job.job_id)
+        logger_error = logging.getLogger("error_log")
+        logger_activity = logging.getLogger("activity_log")
+        now = datetime.datetime.now()
         fail = False
 
         # order deployment sets according to the priority level. 
@@ -150,6 +154,7 @@ class JobHandler(threading.Thread):
             # within a deployment set sort the deployments according to the priority level
             dep_set.deployments.sort(key=lambda deployment: deployment.priority, reverse=True)
             for dep in dep_set.deployments:
+                error=''
                 print 'calling rest for ' + str(dep.dep_id)
                 if dep.values:
                     params = urllib.urlencode(json.loads(dep.values))
@@ -165,22 +170,30 @@ class JobHandler(threading.Thread):
                     status = res_list['status']
                 except IOError:
                     print 'Wrong url'
+                    error='Invalid URL'
                     status = 'fail'
                 except ValueError:
                     print 'Non json formatted response returned'
+                    error='Non json value returned'
                     status = 'fail'
                 except KeyError:
                     print 'Wrong json format returned'
+                    error='Wrong json format returned'
                     status = 'fail'
                 except:
+                    print 'Unknown error occured while trying to call url'
+                    error='Unknown error'
                     status = 'fail'
 
                 if status == 'success':
                     print 'Deployment ' + str(dep.dep_id) + ' Successful'
+                    logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Deployment ' + str(dep.dep_id) + ' successful.')
                     dep.status = 3
                 else:
                     fail = True
                     print 'Deployment ' + str(dep.dep_id) + ' failed'
+                    logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Deployment ' + str(dep.dep_id) + ' failed. - ' + error)
+                    logger_error.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Deployment ' + str(dep.dep_id) + ' failed. - ' + error)
                     dep.status = 2
                     # if the deployment is in priority level 1 other deployments in the same deployment set are skipped
                     if dep.priority == 1:
@@ -190,19 +203,28 @@ class JobHandler(threading.Thread):
 
         # update job status
         if fail:
+            logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' failed.')
+            logger_error.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' failed.')
             print ' Job ' + str(self.job.job_id) + ' failed'
             self.job.status = 2
         else:
             print ' Job ' + str(self.job.job_id) + ' successful'
+            logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' successful')
             self.job.status = 3
         try:
             params = urllib.urlencode(json.loads('{"jobid":"'+ str(self.job.job_id) + '", "status":"' + str(self.job.status) + '"}'))
             url = urllib2.urlopen(config.controller_ip, params)
             url.close()
         except IOError:
+            logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
+            logger_error.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
             print 'Wrong url. Job finalizing call failed'
         except:
             print 'Error calling URL. Job finalizing call failed'
+            logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
+            logger_error.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
+
+        logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call successful.')
         self.update()
 
     def update(self):
