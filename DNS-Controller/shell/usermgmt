@@ -44,11 +44,12 @@ in
     ;;
 
     add-domain)
-    # to do add domain
+	echo -e "dn: ou=${OU},${SEARCHBASE}\nobjectClass: organizationalUnit\nou: ${OU}" | ldapadd -w $LDAPPASSWD -D $BINDDN
     ;;
 
     delete-domain)
-    # to do delete domain
+	ldapdelete -w $LDAPPASSWD -D $BINDDN -r "ou=${OU},${SEARCHBASE}"
+	#Use with care. This can kill baby seals.	
     ;;
 
     *)
