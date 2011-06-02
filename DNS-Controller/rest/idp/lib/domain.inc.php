@@ -5,7 +5,7 @@ function add($domain) {
 	$retval = true;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./usermgmt add_domain $domain", $output, $retval1);
+		exec("cd $shell_path && sudo ./usermgmt add-domain $domain", $output, $retval1);
         	
         $retval = !$retval1;
 	}
@@ -18,7 +18,7 @@ function delete_domain($domain){
         $retval = true;
 
         if ($retval) {
-	        exec("cd $shell_path && sudo ./usermgmt delete_domain $domain", $output, $retval1);
+	        exec("cd $shell_path && sudo ./usermgmt delete-domain $domain", $output, $retval1);
 
             $retval = !$retval1;
         }

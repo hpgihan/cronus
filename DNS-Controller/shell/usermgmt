@@ -38,9 +38,19 @@ in
 		"\nuserPassword: ${USERPASSWORD}\nmail: ${MAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
 	# Whoever calls this must add a password-less user to Zimbra!
     ;;
+
     delete)
 	ldapdelete -w $LDAPPASSWD -D $BINDDN "uid=${LDAPUID},ou=${OU},${SEARCHBASE}"
     ;;
+
+    add-domain)
+    # to do add domain
+    ;;
+
+    delete-domain)
+    # to do delete domain
+    ;;
+
     *)
     echo "USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]"
     exit 1
