@@ -1,10 +1,8 @@
 #!/bin/bash
 
 dbname="cronus"
-dbuser="root"
-dbpasswd="thinkcube"
-#dbuser="XXDBUSERXX"
-#dbpasswd="XXDBPASSXX"
+dbuser="XXDBUSERXX"
+dbpasswd="XXDBPASSXX"
 
 server_table="servers"
 tenant_table="tenants"
