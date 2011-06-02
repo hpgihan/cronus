@@ -6,8 +6,6 @@ function add($subdomain, $username, $lastname, $password) {
 
 	if ($retval) {
 		//exec("cd $shell_path && sudo ./usermgmt add $subdomain $username $lastname $password", $output, $retval1);
-		echo "cd $shell_path && sudo ./myusermgmt add $username $password";
-		exit;
 		exec("cd $shell_path && sudo ./myusermgmt add $username $password", $output, $retval2);
         	
 		//$retval = ! [[ $retval1 && $retval2 ]];
