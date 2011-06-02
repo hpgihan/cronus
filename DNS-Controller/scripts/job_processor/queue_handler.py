@@ -288,4 +288,4 @@ class Deployment:
         self.priority = priority
 
 if __name__ == '__main__':
-    print 'Run through daemon.py'
+    print 'Run through job_processor.py'

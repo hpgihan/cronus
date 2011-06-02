@@ -95,4 +95,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    print 'Run through daemon.py'
+    print 'Run through sever_poller.py'
