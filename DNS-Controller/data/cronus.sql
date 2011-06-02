@@ -16,10 +16,10 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `platform`
+-- Database: `cronus`
 --
-CREATE DATABASE `platform` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `platform`;
+CREATE DATABASE `cronus` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `cronus`;
 
 -- --------------------------------------------------------
 

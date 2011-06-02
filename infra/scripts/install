@@ -7,19 +7,19 @@ sudo cp default-ssl.sample /etc/apache2/sites-available/00000-default-ssl
 sudo a2ensite /etc/apache2/sites-available
 sudo /etc/init.d/apache2 reload
 
-if [ -d /opt/platform/ ] ; then
-    echo "Please Delete directory /opt/platform to proceed. Exiting"
+if [ -d /opt/cronus/ ] ; then
+    echo "Please Delete directory /opt/cronus to proceed. Exiting"
     #exit 1
 fi
 
-echo "Creating directory /opt/platform"
-echo "Copying required scripts to /opt/platform/shell"
-if [ ! -d /opt/platform/shell ] ; then
-    mkdir -p /opt/platform/shell
+echo "Creating directory /opt/cronus"
+echo "Copying required scripts to /opt/cronus/shell"
+if [ ! -d /opt/cronus/shell ] ; then
+    mkdir -p /opt/cronus/shell
 fi
 
 cd ../shell
-cp -r * /opt/platform/shell
+cp -r * /opt/cronus/shell
 
 
 echo "Enter document root of your webserver"

@@ -3,7 +3,7 @@ echo -n ' INFRA-START - Starting services for Thinkcube'
 #PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
 case "$1" in
 start)
-	cd /opt/platform/scripts
+	cd /opt/cronus/scripts
 	sudo python job_processor/daemon.py restart
 	sudo python server_monitor/daemon.py restart
         ;;

@@ -54,7 +54,7 @@ class sspmod_authtwitter_Auth_Source_Twitter extends SimpleSAML_Auth_Source {
 
 
 	/**
-	 * Log-in using Facebook platform
+	 * Log-in using Facebook 
 	 *
 	 * @param array &$state  Information about the current authentication.
 	 */

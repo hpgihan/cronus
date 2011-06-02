@@ -13,7 +13,7 @@ function tenant_destroy(){
     local rest_url="https://${webapp_ip}/api/tenants/action/tenant/destroy"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"port\":\"'$port'\", \"token\":\"'$token'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 
 }
 function proxy_destroy(){
@@ -24,7 +24,7 @@ function proxy_destroy(){
     local rest_url="https://${infra_ip}/api/proxy/action/vhost/destroy"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 
 }
 function domain_delete(){
@@ -37,7 +37,7 @@ function domain_delete(){
     local rest_url="https://${dns_ip}/api/dns/action/domain/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"subdomain\":\"'${subdomain}'\", \"webappip\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 function idp_sp_delete(){
@@ -48,7 +48,7 @@ function idp_sp_delete(){
     local rest_url="https://${idp_dns}/api/idp/action/sp/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
 function idp_user_delete(){
@@ -59,7 +59,7 @@ function idp_user_delete(){
     local rest_url="https://${idp_dns}/api/idp/action/user/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
 # pass arguments

@@ -2,42 +2,42 @@
 
 DESCRIPTS=`dirname $0`
 
-if [ -d /opt/platform/ ] ; then
-    echo "Please Delete directory /opt/platform to proceed. Exiting"
+if [ -d /opt/cronus/ ] ; then
+    echo "Please Delete directory /opt/cronus to proceed. Exiting"
     #exit 1
 fi
 
-echo "Creating directory /opt/platform"
+echo "Creating directory /opt/cronus"
 
-echo "Copying daemon processors to /opt/platform/scripts"
-if [ ! -d /opt/platform/scripts ] ; then
-    sudo mkdir -p /opt/platform/scripts
+echo "Copying daemon processors to /opt/cronus/scripts"
+if [ ! -d /opt/cronus/scripts ] ; then
+    sudo mkdir -p /opt/cronus/scripts
 fi
 
-sudo cp -r job_processor /opt/platform/scripts
-sudo cp -r server_monitor /opt/platform/scripts
+sudo cp -r job_processor /opt/cronus/scripts
+sudo cp -r server_monitor /opt/cronus/scripts
 
-echo "Copying required scripts to /opt/platform/shell"
-if [ ! -d /opt/platform/shell ] ; then
-    sudo mkdir -p /opt/platform/shell
+echo "Copying required scripts to /opt/cronus/shell"
+if [ ! -d /opt/cronus/shell ] ; then
+    sudo mkdir -p /opt/cronus/shell
 fi
 
 cd ../shell
-sudo cp -r * /opt/platform/shell
+sudo cp -r * /opt/cronus/shell
 
-echo "Copying command scripts to /opt/platform/control"
-if [ ! -d /opt/platform/control ] ; then
-    sudo mkdir -p /opt/platform/control
+echo "Copying command scripts to /opt/cronus/control"
+if [ ! -d /opt/cronus/control ] ; then
+    sudo mkdir -p /opt/cronus/control
 fi
 
 cd ../lib/
-sudo cp -r TenantHandlers /opt/platform/control
+sudo cp -r TenantHandlers /opt/cronus/control
 
 cd ../scripts
 
 echo "Enter your domain (ex- thinkcube.net)"
 read domain
-echo "Writing DNS file db.platform to /etc/bind"
+echo "Writing DNS file db.cronus to /etc/bind"
 
 if [ ! -d /etc/bind ] ; then
     echo "No DNS server installed. Installing bind9"
@@ -48,15 +48,15 @@ echo "Enter your ethernet interface"
 read ethernet_interface
 dns_ip=`ifconfig ${ethernet_interface} | grep -o 'inet addr[^ ]\+'| sed -e "s/[^0-9\.]//g"`
 
-sudo cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDNSIPXX/${dns_ip}/g" > /etc/bind/db.platform
+sudo cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDNSIPXX/${dns_ip}/g" > /etc/bind/db.cronus
 
-echo "Adding db.platform to default zones"
+echo "Adding db.cronus to default zones"
 
 sudo cat zone.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/bind/named.conf.default-zones
 
-echo "Adding IDP DNS in db.platform"
+echo "Adding IDP DNS in db.cronus"
 
-cd /opt/platform/shell
+cd /opt/cronus/shell
 
 sudo ./dns add idp ${dns_ip}
 
@@ -76,11 +76,11 @@ read username
 echo "Enter mysql password"
 read password
 
-mysql -u ${username} --password=${password} < platform.sql 
+mysql -u ${username} --password=${password} < cronus.sql 
 
 cd ..
 
-cd /opt/platform/control/TenantHandlers/shell
+cd /opt/cronus/control/TenantHandlers/shell
 
 sudo cat settings > settings.tmp
 sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > settings
@@ -90,7 +90,7 @@ cd -
 
 echo "Replacing database settings in daemon processors and starting them"
 
-cd /opt/platform/scripts
+cd /opt/cronus/scripts
 
 sudo mv job_processor/config.py job_processor/config.py.tmp
 sudo cat job_processor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" | sed -e "s/XXCNTRLIPXX/${dns_ip}/g" > job_processor/config.py

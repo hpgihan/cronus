@@ -14,11 +14,11 @@ class PollHandler:
         pass
 
     def start(self):
-        if not os.path.exists('/var/log/platform'):
-            os.makedirs('/var/log/platform')
+        if not os.path.exists('/var/log/cronus'):
+            os.makedirs('/var/log/cronus')
 
         logger_activity = logging.getLogger("activity_log")
-        ah = logging.FileHandler('/var/log/platform/server_status.log')
+        ah = logging.FileHandler('/var/log/cronus/server_status.log')
         ah.setLevel(logging.DEBUG)
         logger_activity.addHandler(ah)
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Usage : platformdeploy {create} {port} {diskquota}
-# Usage : platform {destroy} {port}
+# Usage : cronusdeploy {create} {port} {diskquota}
+# Usage : cronusdeploy {destroy} {port}
 
 PORT=$2
 DISKQUOTA=$3

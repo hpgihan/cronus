@@ -1,5 +1,5 @@
 ;
-; BIND data file for platform dns interface
+; BIND data file for cronus dns interface
 ;
 $TTL    60
 @       IN      SOA     ns1.XXDOMAINXX. root.XXDOMAINXX. (

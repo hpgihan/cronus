@@ -3,7 +3,7 @@
  * SAML IDP configuration data
  */
 
-$metadata['platform-idp'] = array(
+$metadata['cronus-idp'] = array(
 	'host' => '__DEFAULT__',
 
 	/* X.509 key and certificate. Relative to the cert directory. */
