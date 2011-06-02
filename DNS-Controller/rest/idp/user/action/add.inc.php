@@ -23,5 +23,5 @@ $retval = $function(param('subdomain'), param('username'), param('last_name'), p
 if($retval) {
 	print json_encode(array('status'=>'success'));
 } else {
-	print json_encode(array('status'=>'fail'));
+	print json_encode(array('status'=>'fail','message'=>'Invalid parameters or internal error.'));
 }
