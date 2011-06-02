@@ -1,4 +1,13 @@
 #!/bin/bash
 
 # DNS Zone info
-DBZONE="db.cronus"
+#DBZONE="db.platform"
+DBZONE="db.thinkcube.net"
+DBUSER="root"
+DBPASSWD="thinkcube"
+USERSTORE="UserStore"
+
+DC1="thinkcube"
+DC2="net"
+ROOTUSER="admin"
+LDAPPASSWD="th!nkd4p"
