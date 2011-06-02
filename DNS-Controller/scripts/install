@@ -37,6 +37,11 @@ cd ../scripts
 
 echo "Enter your domain (ex- thinkcube.net)"
 read domain
+
+# retreiving settings needed for LDAP
+dc1=`echo $domain | awk -F ' ' '{print $1}'`
+dc2=`echo $domain | awk -F ' ' '{print $2}'`
+
 echo "Writing DNS file db.cronus to /etc/bind"
 
 if [ ! -d /etc/bind ] ; then
@@ -78,12 +83,17 @@ read password
 
 mysql -u ${username} --password=${password} < cronus.sql 
 
+echo "Enter LDAP root username"
+read ldapusername
+echo "Enter LDAP root password"
+read ldappassword
+
 cd ..
 
 cd /opt/cronus/control/TenantHandlers/shell
 
 sudo cat settings > settings.tmp
-sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > settings
+sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g"  | sed -e "s/XXDC1XX/${dc1}/g" | sed -e "s/XXDC2XX/${dc2}/g" | sed -e "s/XXLDAPUIDXX/${ldapusername}/g" | sed -e "s/XXLDAPPASSWDXX/${ldappassword}/g" > settings
 sudo rm settings.tmp
 
 cd -
