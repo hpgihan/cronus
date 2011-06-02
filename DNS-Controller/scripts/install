@@ -82,6 +82,7 @@ echo "Enter mysql password"
 read password
 
 mysql -u ${username} --password=${password} < cronus.sql 
+mysql -u ${username} --password=${password} < UserStore.sql 
 
 echo "Enter LDAP root username"
 read ldapusername
