@@ -2,7 +2,7 @@
 
 function _usage() {
 	echo <<<EOT
-Usage Example: /api/idp/action/user/add
+Usage Example: /api/idp/update/user/passwd
 
 passed values:
 port : 8081 is customer's webapp server port
@@ -17,10 +17,11 @@ EOT;
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-$retval = $function(param('domain'));
+//echo param('port').",".  param('subdomain').",".  param('domain').",".  param('infraip').",". param('webappip');
+$retval = change_passwd(param('subdomain'), param('username'), param('password'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));
 } else {
-	print json_encode(array('status'=>'fail'));
+	print json_encode(array('status'=>'fail','message'=>'Invalid parameters or internal error.'));
 }

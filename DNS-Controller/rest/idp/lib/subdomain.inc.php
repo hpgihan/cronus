@@ -1,11 +1,11 @@
 <?php
 
-function add($domain) {
+function add($subdomain) {
 	global $shell_path;
 	$retval = true;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./usermgmt add-domain $domain", $output, $retval1);
+		exec("cd $shell_path && sudo ./usermgmt add-domain $subdomain", $output, $retval1);
         	
         $retval = !$retval1;
 	}
@@ -13,12 +13,12 @@ function add($domain) {
 	return $retval;
 }
 
-function delete_domain($domain){
+function delete_domain($subdomain){
         global $shell_path;
         $retval = true;
 
         if ($retval) {
-	        exec("cd $shell_path && sudo ./usermgmt delete-domain $domain", $output, $retval1);
+	        exec("cd $shell_path && sudo ./usermgmt delete-domain $subdomain", $output, $retval1);
 
             $retval = !$retval1;
         }

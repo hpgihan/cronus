@@ -30,13 +30,13 @@ function delete_user($subdomain, $username){
         return $retval;
 }
 
-function update($subdomain, $username, $password){
+function change_passwd($subdomain, $username, $password){
         global $shell_path;
         $retval = true;
 
         if ($retval) {
             //exec("cd $shell_path && sudo ./usermgmt delete $username", $output, $retval1);
-	    exec("cd $shell_path && sudo ./myusermgmt delete $username", $output, $retval2);
+	        exec("cd $shell_path && sudo ./myusermgmt change-passwd $username $password", $output, $retval2);
 
             //$retval = ! [[ $retval1 && $retval2 ]];
             $retval = !$retval2;
