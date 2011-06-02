@@ -23,5 +23,5 @@ $retval = delete_user(param('subdomain'), param('username'));
 if($retval) {
 	print json_encode(array('status'=>'success'));
 } else {
-	print json_encode(array('status'=>'fail'));
+	print json_encode(array('status'=>'fail','message'=>'Invalid parameters or internal error.'));
 }
