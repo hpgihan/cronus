@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-# Add a saml consumer in IDP
-# usage samlserviceprovider {add|delete} {DOMAIN}
+# Manage saml consumers in IDP
+# USAGE: samlprovider {add|delete} {DOMAIN}
 
 IDP_LOCATION="/var/idp"
 DOMAIN=$2
@@ -29,7 +29,7 @@ if [ ! -d $IDP_LOCATION ] ; then
 fi
 
 if [ ! $DOMAIN ] ; then
-    echo "USAGE samlserviceprovider {add|delete} {DOMAIN}"
+    echo "USAGE samlprovider {add|delete} {DOMAIN}"
     exit 1
 fi
 
@@ -50,7 +50,7 @@ in
         rm $IDP_LOCATION/metadata/saml20-sp-remote.php.tmp
     ;;
     *)
-    echo "USAGE samlserviceprovider {add|delete} {DOMAIN}"
+    echo "USAGE samlprovider {add|delete} {DOMAIN}"
     exit 1
 esac   
 

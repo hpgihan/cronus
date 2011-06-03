@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+# Aura specific settings
+
 # DNS Zone info
-DBZONE="db.thinkcube.net"
 MAILSERVERIP="mail"
 MAINDOMAIN="thinkcube.net"
 

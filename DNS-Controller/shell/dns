@@ -36,7 +36,7 @@ WEBAPPIP=$4
 case $1 in
     add)
  	if grep -q "^$SUBDOMAIN.*${PROXYIP}" /etc/bind/${DBZONE};then
-		echo "Domain already exits !"
+		echo "Domain already exist!"
         exit 1	
 	fi	
 	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`	
@@ -58,6 +58,7 @@ case $1 in
 		echo "Domain already exits !"
         exit 1	
 	fi	
+
 	SERIAL=`cat /etc/bind/${DBZONE} | grep -i "Serial" |sed -e "s/[^0-9]//g"`	
  	NEWSERIAL=`expr ${SERIAL} + 1`
 
@@ -94,7 +95,7 @@ case $1 in
 	;;
 
     *)
-        echo "Usage: dns {create|basiccreate|destroy|basicdestroy} {subdomain} {ProxyIPAddress}"
+        echo "Usage: dns {add|basicadd|delete|basicdelete} {subdomain} {ProxyIPAddress}"
         exit 1
     ;;
 esac

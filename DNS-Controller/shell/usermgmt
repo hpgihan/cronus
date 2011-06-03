@@ -22,7 +22,7 @@
 # 
 # Create a file called settings at the same directory level as this script
 # Example settings file entries for searchbase dc=thinkcube,dc=net
-#  with rootuser admin and root password dirtysecret.
+# with rootuser admin and root password dirtysecret.
 #
 # DC1=thinkcube
 # DC2=net
