@@ -50,9 +50,9 @@ sudo cp -r api ${doc_root}
 cd webapp/rest
 sudo cp -r tenants ${doc_root}/api/
 
-#echo "Copying Startup script; {tenants_start} to /etc/init.d"
-#cd ../scripts
-#sudo cp tenants_start /etc/init.d
-#sudo update-rc.d tenants_start defaults
+echo "Copying Startup script; {tenants_start} to /etc/init.d"
+cd ../scripts
+sudo cp tenants_start /etc/init.d
+sudo update-rc.d tenants_start defaults
 
 echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/cronus/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"
