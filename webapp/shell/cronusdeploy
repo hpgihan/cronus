@@ -213,8 +213,8 @@ case $1 in
 		fi
 
 	# If deleting customer is currently disabled, remove it from disabled customer list
-	if [ -f /etc/thinkcube/disabled_customers/${PORT} ];then
-		rm /etc/thinkcube/disabled_customers/${PORT}
+	if [ -f /etc/cronus/disabled_customers/${PORT} ];then
+		rm /etc/cronus/disabled_customers/${PORT}
 	fi
 	 	
 	if grep -q "mysqld$ID" $MYSQL_CONF;then
@@ -262,11 +262,10 @@ case $1 in
 			echo "There is no customer on port ${PORT}";
 		else # If the customer exists
 			# Touch the disabled_customers file regardless of the deployment type
-			if [ ! -d /etc/thinkcube ];then
-				mkdir /etc/thinkcube
-				mkdir /etc/thinkcube/disabled_customers
+			if [ ! -d /etc/cronus/disabled_customers ];then
+				mkdir -p /etc/cronus/disabled_customers
 			fi
-			touch /etc/thinkcube/disabled_customers/${PORT}
+			touch /etc/cronus/disabled_customers/${PORT}
 	
 			if [[ $SERVER == 'basic' ]];
 			then
@@ -285,7 +284,7 @@ case $1 in
 		then
 			echo "There is no customer on port ${PORT}";
 		else
-			rm /etc/thinkcube/disabled_customers/${PORT}
+			rm /etc/cronus/disabled_customers/${PORT}
 			if [[ $SERVER == 'basic' ]];
 			then
 				${DEPSCRIPTS}/mysql enable $PORT

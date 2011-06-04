@@ -25,11 +25,10 @@ start)
 		for f in $FILES
 		do
 				PORT=$(echo basename $f | sed 's/.*[^0-9]\([0-9][0-9]*\).*/\1/g')
-		        if [ ! -d /etc/thinkcube ];then
-    		        mkdir /etc/thinkcube
-           			mkdir /etc/thinkcube/disabled_customers
+		        if [ ! -d /etc/cronus/disabled_customers ];then
+           			mkdir -p /etc/cronus/disabled_customers
 		        fi
-				if [ -f /etc/thinkcube/disabled_customers/${PORT} ];then
+				if [ -f /etc/cronus/disabled_customers/${PORT} ];then
 					echo "User $f disabled"
 				else
 					echo "Starting $f apache server..."
