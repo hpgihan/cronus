@@ -30,7 +30,7 @@ import utils
 import resolve
 
 class QueueHandler:
-    ''' Handles the Job Queue. Initiate jobs assign deployments to the job 
+    ''' Handles the Job Queue. Initiate jobs; assign deployments to the job 
     and then invokes the JobHandler '''
     def __init__(self):
         pass

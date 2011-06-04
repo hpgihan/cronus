@@ -17,6 +17,7 @@
 #!/usr/bin/env python
 
 from signal import SIGTERM
+import os, sys, time, atexit
 
 import poll_daemon
 

@@ -17,11 +17,37 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+# Install script for Cronus Dns/Controller Server.
+
 DESCRIPTS=`dirname $0`
 
+function prompt_reinstall(){
+    echo "Cronus already installed at /opt/cronus. Reinstall?(yes|no)"
+    read answer
+    case $answer
+    in
+        yes)
+        return 0
+        ;;
+        y)
+        return 0
+        ;;
+        no)
+        return 1
+        ;;
+        n)
+        return 1
+        ;;
+        *)
+        prompt_reinstall
+    esac
+}
+
+# If cronus is already installed; prompt for re-install
 if [ -d /opt/cronus/ ] ; then
-    echo "Please Delete directory /opt/cronus to proceed. Exiting"
-    #exit 1
+    if !(prompt_reinstall); then
+        exit 0
+    fi
 fi
 
 echo "Creating directory /opt/cronus"
@@ -34,24 +60,26 @@ fi
 sudo cp -r job_processor /opt/cronus/scripts
 sudo cp -r server_monitor /opt/cronus/scripts
 
-echo "Copying required scripts to /opt/cronus/shell"
+# Deployment shells are copied to /opt/cronus
+echo "Copying deployment scripts to /opt/cronus/shell"
 if [ ! -d /opt/cronus/shell ] ; then
     sudo mkdir -p /opt/cronus/shell
 fi
-
 cd ../shell
 sudo cp -r * /opt/cronus/shell
 
+# Tenant handler scripts are copied to /opt/cronus/control
 echo "Copying command scripts to /opt/cronus/control"
 if [ ! -d /opt/cronus/control ] ; then
     sudo mkdir -p /opt/cronus/control
 fi
-
 cd ../lib/
 sudo cp -r TenantHandlers /opt/cronus/control
 
+# change back to installation directory
 cd ../scripts
 
+# Domain is needed to write the DNS file
 echo "Enter your domain (ex- thinkcube.net)"
 read domain
 
@@ -59,31 +87,33 @@ read domain
 dc1=`echo $domain | awk -F ' ' '{print $1}'`
 dc2=`echo $domain | awk -F ' ' '{print $2}'`
 
-echo "Writing DNS file db.cronus to /etc/bind"
-
+# If bind9 is not installed install it
 if [ ! -d /etc/bind ] ; then
     echo "No DNS server installed. Installing bind9"
     sudo apt-get -y --force-yes install bind9
 fi
 
+echo "Writing DNS file db.cronus to /etc/bind"
 echo "Enter your ethernet interface"
+
+# IP Address is needed to write the DNS file. Retreive it by prompting for ethernet interface
 read ethernet_interface
 dns_ip=`ifconfig ${ethernet_interface} | grep -o 'inet addr[^ ]\+'| sed -e "s/[^0-9\.]//g"`
 
+# Writing DNS file
 sudo cat dns.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDNSIPXX/${dns_ip}/g" > /etc/bind/db.cronus
 
+# Adding DNS file to default zones
 echo "Adding db.cronus to default zones"
-
 sudo cat zone.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/bind/named.conf.default-zones
 
 echo "Adding IDP DNS in db.cronus"
-
 cd /opt/cronus/shell
-
 sudo ./dns add idp ${dns_ip}
 
 cd -
 
+# Configure SSL VHost for IDP; install apache modules, ssl, rewrite, headers and restart apache
 echo "Adding SSL Virtual Host for IDP at idp.${domain}. Make sure SSL is enabled at port 443"
 
 sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/apache2/sites-available/default-ssl
@@ -91,6 +121,7 @@ sudo a2ensite /etc/apache2/sites-available/default-ssl
 sudo a2enmod ssl rewrite headers
 sudo /etc/init.d/apache2 restart
 
+# Retrieve DB Username Passwords to import databases and write to shell settings file and daemon config.py files
 echo "Installing databases"
 cd ../data
 echo "Enter mysql username"
@@ -101,6 +132,7 @@ read password
 mysql -u ${username} --password=${password} < cronus.sql 
 mysql -u ${username} --password=${password} < UserStore.sql 
 
+# Retrieve LDAP Username Passwords to write to settings file
 echo "Enter LDAP root username"
 read ldapusername
 echo "Enter LDAP root password"
@@ -109,7 +141,6 @@ read ldappassword
 cd ..
 
 cd /opt/cronus/control/TenantHandlers/shell
-
 sudo cat settings > settings.tmp
 sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g"  | sed -e "s/XXDC1XX/${dc1}/g" | sed -e "s/XXDC2XX/${dc2}/g" | sed -e "s/XXLDAPUIDXX/${ldapusername}/g" | sed -e "s/XXLDAPPASSWDXX/${ldappassword}/g" > settings
 sudo rm settings.tmp
@@ -117,9 +148,7 @@ sudo rm settings.tmp
 cd -
 
 echo "Replacing database settings in daemon processors and starting them"
-
 cd /opt/cronus/scripts
-
 sudo mv job_processor/config.py job_processor/config.py.tmp
 sudo cat job_processor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" | sed -e "s/XXCNTRLIPXX/${dns_ip}/g" > job_processor/config.py
 sudo rm job_processor/config.py.tmp
@@ -132,27 +161,22 @@ sudo python server_monitor/daemon.py start
 
 cd -
 
+# Install pre configured IDP
 echo "Installing Identity Provider to /var/idp"
 cd lib
 sudo cp -r idp /var
 
-echo "Enter document root of your webserver"
-read doc_root
+# Install API Controller
+cd ../../scripts
+./copyapi
 
-echo "Copying REST api to ${doc_root}/api"
-if [ ! -d /var/www/api ] ; then
-    sudo mkdir ${doc_root}/api
-fi
-
-cd ../../
-sudo cp -r api ${doc_root}
-
-cd DNS-Controller/rest
+# Install DNS, IDP REST API's
+cd ../DNS-Controller/rest
 sudo cp -r dns ${doc_root}/api/
 sudo cp -r idp ${doc_root}/api/
 
+# Copy cronus_restart script to /etc/init.d and updating
 cd ../scripts
-
 echo "Adding proxy restart script"
 sudo cp cronus_restart /etc/init.d
 sudo update-rc.d cronus_restart defaults
