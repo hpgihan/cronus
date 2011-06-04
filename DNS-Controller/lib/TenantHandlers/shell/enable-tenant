@@ -73,22 +73,12 @@ do
       shift 2
     ;;
 
-    -username)
-      username=$2
-      shift 2
-    ;;
-
-    -password)
-      password=$2
-      shift 2
-    ;;
-
     -q)
       queued=1
       shift 1
     ;;
     --help)
-      echo "usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q"
+      echo "usage enable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q"
       exit
     ;;
 
@@ -104,8 +94,14 @@ if [ ! $queued ] ; then
     exit 1
 fi
 
+username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
+username=`echo ${username_row} | awk -F ' ' '{print $2}'`
+
+password_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select password from ${user_table} where tenant_id = ${tenant_id}"`
+password=`echo ${password_row} | awk -F ' ' '{print $2}'`
+
 if [ ! $username ] || [ ! $password ]; then
-    echo "Username of Tanent should be provided'. Exiting"
+    echo "Unable to locate username, password of Tenant. Exiting"
     exit 1
 fi
 

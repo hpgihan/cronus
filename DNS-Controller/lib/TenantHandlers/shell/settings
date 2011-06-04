@@ -32,7 +32,7 @@ server_types="infra webapp dns idp"
 
 start_port=8805
 
-default_diskquota=20
+default_diskquota=10
 
 job_type_tenant_deploy=1
 job_type_tenant_destroy=5

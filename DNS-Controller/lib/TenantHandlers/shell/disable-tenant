@@ -74,11 +74,6 @@ do
       shift 2
     ;;
 
-    -username)
-      username=$2
-      shift 2
-    ;;
-
     -q)
       queued=1
       shift 1
@@ -100,11 +95,6 @@ if [ ! $queued ] ; then
     exit 1
 fi
 
-if [ ! $username ] ; then
-    echo "Username of Tanent should be provided'. Exiting"
-    exit 1
-fi
-
 if [ ! ${tenant_id} ] ; then
     if [ ${domain} ] ; then
         tenant_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id from ${tenant_table} where domain = '${domain}'"`
@@ -117,6 +107,14 @@ fi
 
 if [ ! ${tenant_id} ] ; then
     echo "No tenant with provided data. Exiting"
+    exit 1
+fi
+
+username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
+username=`echo ${username_row} | awk -F ' ' '{print $2}'`
+
+if [ ! $username ] ; then
+    echo "Unable to locate username of the tenant. Exiting"
     exit 1
 fi
 
@@ -150,7 +148,7 @@ port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id f
 port=`echo $port_row | awk -F ' ' '{print $2}'`
 
 if [ ! ${subdomain} ] || [ ! ${port} ] || [ ! ${webapp_ip} ] || [ ! ${infra_ip} ] ; then
-    echo "Could not find tanent with supplied data. Exiting"
+    echo "Could not find tenant with supplied data. Exiting"
     exit 1
 fi
 
