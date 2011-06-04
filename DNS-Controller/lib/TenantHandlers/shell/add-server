@@ -131,6 +131,9 @@ if !(`echo ${server_types} | grep -q -w ${server_type}`) ; then
     exit 1
 fi
 
+# Change to legacy server type names
+server_type=`echo ${server_type} | sed -e s/proxy/infra/g | sed -e s/tenant/webapp/g`
+
 # when an infra is added a new cluster is created
 if [ $server_type == "infra" ] ; then
     if [ $cluster ] ; then

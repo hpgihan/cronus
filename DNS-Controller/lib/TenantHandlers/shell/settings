@@ -28,7 +28,7 @@ user_table='tenant_users'
 job_table="job_queue"
 deployment_table="deployment_queue"
 
-server_types="infra webapp dns idp"
+server_types="proxy tenant dns idp"
 
 start_port=8805
 
