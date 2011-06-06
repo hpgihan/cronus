@@ -15,8 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+/*
+* Library functions for IDP user handling
+*
+*/
+
 <?php
 
+// IDP User add
 function add($subdomain, $username, $lastname, $password) {
 	global $shell_path;
 	$retval = true;
@@ -32,6 +38,7 @@ function add($subdomain, $username, $lastname, $password) {
 	return $retval;
 }
 
+// IDP user delete
 function delete_user($subdomain, $username){
         global $shell_path;
         $retval = true;
@@ -47,6 +54,7 @@ function delete_user($subdomain, $username){
         return $retval;
 }
 
+// Change password
 function change_passwd($subdomain, $username, $password){
         global $shell_path;
         $retval = true;

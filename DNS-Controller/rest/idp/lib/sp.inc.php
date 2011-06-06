@@ -15,8 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+/*
+* Library functions for Saml Service Provider handling
+*
+*/
+
 <?php
 
+//Service Provider add
 function add($domain) {
 	global $shell_path;
 	$retval = true;
@@ -32,6 +38,7 @@ function add($domain) {
 	return $retval;
 }
 
+// Service Provider delete
 function delete_sp($domain){
         global $shell_path;
         $retval = true;
@@ -45,6 +52,5 @@ function delete_sp($domain){
         }
 
         return $retval;
-
 }
 ?>

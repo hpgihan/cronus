@@ -15,5 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+# Priority leves and critical_priority are used to determine priotiry level deployments 
+# that should be skipped if any other level deployment had failed
 priority_levels = {'webapp':0, 'voip':0, 'mail':0, 'filter':0, 'infra':0, 'dns':1, 'idp':1}
 critical_priority = 1

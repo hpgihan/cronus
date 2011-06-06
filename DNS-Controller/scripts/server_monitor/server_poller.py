@@ -49,7 +49,6 @@ class Daemon:
 			sys.exit(1)
 	
 		# decouple from parent environment
-		#os.chdir("/") 
 		os.setsid() 
 		os.umask(0)
 
@@ -184,7 +183,6 @@ if __name__ == "__main__":
 		else:
 			print "usage: %s start|stop|restart|check|-f" % sys.argv[0]
 			sys.exit(2)
-		#sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart|check|-f" % sys.argv[0]
 		sys.exit(2)

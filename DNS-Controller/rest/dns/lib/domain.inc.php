@@ -15,8 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+/*
+* Library functions for DNS handling
+*
+*/
+
 <?php
 
+// DNS add
 function add ($subdomain, $infraip, $webappip) {
 	global $shell_path;
 	$retval = true;
@@ -60,7 +66,7 @@ function basicadd($subdomain, $infraip, $webappip){
 
 }
 
-// Destroy infra deployment
+// DNS Delete
 function delete_dns($subdomain, $infraip, $webappip) {
 	global $shell_path;
 

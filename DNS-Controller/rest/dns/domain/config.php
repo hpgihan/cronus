@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+/*
+*
+* Defines where to locate helper shell files
+*
+*/
+
 <?php
     $shell_path="/opt/cronus/shell/";
 ?>
