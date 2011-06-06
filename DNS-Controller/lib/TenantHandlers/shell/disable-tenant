@@ -164,7 +164,7 @@ fi
 
 tenant_disable ${job_id} ${port} ${webapp_ip}
 domain_disable ${job_id} ${subdomain} ${dns_ip} ${webapp_ip} ${infra_ip}
-idp_user_delete ${job_id} ${username} ${idp_dns}
+#idp_user_delete ${job_id} ${username} ${idp_dns}
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_disable}', '${job_status_new}', ${tenant_id})"
 echo "Tenant disabling queued"

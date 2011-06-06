@@ -73,10 +73,11 @@ function idp_user_delete(){
     local job_ip=$1
     local username=$2
     local idp_dns=$3
+    local domain=$4
 
     local rest_url="https://${idp_dns}/api/idp/action/user/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
+    local values='{\"username\":\"'${username}'@'${domain}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
@@ -190,7 +191,7 @@ tenant_destroy ${job_id} ${port} ${webapp_ip}
 proxy_destroy ${job_id} ${domain} ${infra_ip}
 domain_delete ${job_id} ${subdomain} ${webapp_ip} ${infra_ip} ${dns_ip}
 idp_sp_delete ${job_id} ${domain} ${idp_dns}
-idp_user_delete ${job_id} ${username} ${idp_dns}
+idp_user_delete ${job_id} ${username} ${idp_dns} ${domain}
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_destroy}', '${job_status_new}', ${tenant_id})"
 

@@ -166,7 +166,7 @@ fi
 
 tenant_enable ${job_id} ${port} ${webapp_ip}
 domain_enable ${job_id} ${subdomain} ${dns_ip} ${webapp_ip} ${infra_ip}
-idp_user_add ${job_id} ${username} ${idp_dns}
+#idp_user_add ${job_id} ${username} ${idp_dns}
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_enable}', '${job_status_new}', ${tenant_id})"
 echo "Tenant enabling queued"
