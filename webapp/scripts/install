@@ -23,9 +23,33 @@
 
 DESCRIPTS=`dirname $0`
 
+function prompt_reinstall(){
+    echo "Cronus already installed at /opt/cronus. Reinstall?(yes|no)"
+    read answer
+    case $answer
+    in
+        yes)
+        return 0
+        ;;
+        y)
+        return 0
+        ;;
+        no)
+        return 1
+        ;;
+        n)
+        return 1
+        ;;
+        *)
+        prompt_reinstall
+    esac
+}
+
+# If cronus is already installed; prompt for re-install
 if [ -d /opt/cronus/ ] ; then
-    echo "Please Delete directory /opt/cronus to proceed. Exiting"
-    #exit 1
+    if !(prompt_reinstall); then
+        exit 0
+    fi
 fi
 
 echo "Creating directory /opt/cronus"
