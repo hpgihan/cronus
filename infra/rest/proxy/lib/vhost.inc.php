@@ -1,3 +1,5 @@
+<?php
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -15,8 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-<?php
+/*
+*
+* Helper functions for proxy management
+*
+*/
 
+//create virtual host
 function create ($domain, $port, $webappip) {
 	global $shell_path;
 	$retval = true;
@@ -38,7 +45,7 @@ function create ($domain, $port, $webappip) {
 	return $retval;
 }
 
-// Destroy infra deployment
+// Destroy virtual host
 function destroy ($domain) {
 	global $shell_path;
 	$retval = true;
@@ -56,6 +63,7 @@ function destroy ($domain) {
 
 }
 
+// Reset proxies 
 function reset_proxy(){
 	global $shell_path;
 
