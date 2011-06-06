@@ -19,9 +19,15 @@
 
 DESCRIPTS=`dirname $0`
 
-echo "Creating default-ssl virtual host in /etc/apache2/sites-available"
-sudo cp default-ssl.sample /etc/apache2/sites-available/00000-default-ssl
-sudo a2ensite /etc/apache2/sites-available
+echo "Creating 00000-cronus_infra-ssl virtual host in /etc/apache2/sites-available"
+sudo cp ../conf/cronus_infra-ssl /etc/apache2/sites-available/00000-cronus_infra-ssl
+echo "Creating 00000-cronus_infra virtual host in /etc/apache2/sites-available"
+sudo cp ../conf/cronus_infra /etc/apache2/sites-available/00000-cronus_infra
+echo "Enabling 00000-cronus_infra-ssl virtual host"
+sudo a2ensite /etc/apache2/sites-available/00000-cronus_infra-ssl
+echo "Enabling 00000-cronus_infra virtual host"
+sudo a2ensite /etc/apache2/sites-available/00000-cronus_infra
+echo "Reloading Apache2 configuration"
 sudo /etc/init.d/apache2 reload
 
 if [ -d /opt/cronus/ ] ; then

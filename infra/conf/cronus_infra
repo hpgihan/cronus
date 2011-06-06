@@ -1,0 +1,21 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+
+	DocumentRoot /var/www/cronus-infra
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/cronus-infra/>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	LogLevel warn
+
+	# Apache logs
+	ErrorLog /var/log/apache2/cronus_infra_error.log
+	CustomLog /var/log/apache2/cronus_infra_access.log combined
+</VirtualHost>
