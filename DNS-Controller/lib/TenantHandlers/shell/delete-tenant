@@ -1,5 +1,23 @@
 #!/bin/bash
-# usage delete-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME -q
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+# USAGE: delete-tenant [-domain DOMAIN|-tenant-id TENANTID] -q
 
 DESCRIPTS=`dirname $0`
 
@@ -117,6 +135,11 @@ fi
 username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
 username=`echo ${username_row} | awk -F ' ' '{print $2}'`
 
+if [ ! $username ] ; then
+    echo "Unable to locate username of the tenant. Exiting"
+    exit 1
+fi
+
 # get DNS IP
 dns_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'dns' and remaining_capacity > 0 and server_allocation_status = 1"`
 dns_ip=`echo $dns_row | awk -F ' ' '{print $2}'`
@@ -147,7 +170,7 @@ port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id f
 port=`echo $port_row | awk -F ' ' '{print $2}'`
 
 if [ ! ${port} ] || [ ! ${webapp_ip} ] || [ ! ${infra_ip} ] ; then
-    echo "Could not find tanent with supplied data. Exiting"
+    echo "Could not find tenant with supplied data. Exiting"
     exit 1
 fi
 

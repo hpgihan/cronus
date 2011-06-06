@@ -42,6 +42,7 @@ function check_integrity($auth){
 
 	$request = $_SERVER['REQUEST_URI'];
 	$server = $_SERVER['SERVER_NAME'];
+	$port = $_SERVER['SERVER_PORT'];
     if($_SERVER['HTTPS']){
         $protocol='https';
     }
@@ -49,7 +50,12 @@ function check_integrity($auth){
         $protocol='http';
     }
 
-	$url = $protocol."://".$server.$request;
+	if($port != 80 || $port != 443){
+	    $url = $protocol."://".$server.":".$port.$request;
+	}
+	else{
+	    $url = $protocol."://".$server.$request;
+	} 
 
 	$newauth = md5($key."_".$url);
 

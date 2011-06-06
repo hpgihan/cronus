@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -15,7 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-# Priority leves and critical_priority are used to determine priotiry level deployments 
-# that should be skipped if any other level deployment had failed
-priority_levels = {'webapp':0, 'voip':0, 'mail':0, 'filter':0, 'infra':0, 'dns':1, 'idp':1}
-critical_priority = 1
+# Auto start services for Cronus Dns-Controller server
+
+echo -n 'Starting services for Cronus'
+#PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
+case "$1" in
+start)
+	cd /opt/cronus/scripts
+	sudo python job_processor/job_processor.py restart
+	sudo python server_monitor/server_poller.py restart
+        ;;
+stop)
+        kill -9 `cat /var/run/foobar.pid`
+        ;;
+*)
+        echo "Usage: `basename $0` {start|stop}" >&2
+        exit 64
+        ;;
+esac
+exit 0

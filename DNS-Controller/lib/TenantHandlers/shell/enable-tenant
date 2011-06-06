@@ -1,5 +1,23 @@
 #!/bin/bash
-# usage enable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME-q
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+# USAGE: enable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q
 
 DESCRIPTS=`dirname $0`
 
@@ -55,22 +73,12 @@ do
       shift 2
     ;;
 
-    -username)
-      username=$2
-      shift 2
-    ;;
-
-    -password)
-      password=$2
-      shift 2
-    ;;
-
     -q)
       queued=1
       shift 1
     ;;
     --help)
-      echo "usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME -q"
+      echo "usage enable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q"
       exit
     ;;
 
@@ -86,8 +94,14 @@ if [ ! $queued ] ; then
     exit 1
 fi
 
+username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
+username=`echo ${username_row} | awk -F ' ' '{print $2}'`
+
+password_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select password from ${user_table} where tenant_id = ${tenant_id}"`
+password=`echo ${password_row} | awk -F ' ' '{print $2}'`
+
 if [ ! $username ] || [ ! $password ]; then
-    echo "Username of Tanent should be provided'. Exiting"
+    echo "Unable to locate username, password of Tenant. Exiting"
     exit 1
 fi
 
