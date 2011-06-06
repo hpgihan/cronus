@@ -1,3 +1,5 @@
+<?php
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -15,9 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-<?php
+/*
+*
+* create saml provider
+*
+*/
 
-# create saml provider
 function create ($port, $domain, $idphost, $idpcert) {
 	global $shell_path;
 	$retval = true;

@@ -1,3 +1,5 @@
+<?php
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -21,6 +23,5 @@
 *
 */
 
-<?php
-    $shell_path="/opt/cronus/shell/";
+$shell_path="/opt/cronus/shell/";
 ?>

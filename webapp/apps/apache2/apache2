@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+#
 # Apache 2 virtualize
 # Starts multiple instances of Apache2 using different ports.
 # https port = http port + 1000
-# Usage : apache2 {create|} {8081|8082|8083 etc.}
-
+# Usage : apache2 {create|} {PORT}
+#
 
 PROGRAM="apache2"
 DEPSCRIPTS=`dirname $0`
