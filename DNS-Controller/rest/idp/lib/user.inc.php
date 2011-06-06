@@ -1,11 +1,11 @@
 <?php
 
-function add($subdomain, $username, $lastname, $password) {
+function add($username, $password, $lastname) {
 	global $shell_path;
 	$retval = true;
 
 	if ($retval) {
-		//exec("cd $shell_path && sudo ./usermgmt add $subdomain $username $lastname $password", $output, $retval1);
+		//exec("cd $shell_path && sudo ./usermgmt add $username $password $lastname", $output, $retval1);
 		exec("cd $shell_path && sudo ./myusermgmt add $username $password", $output, $retval2);
         	
 		//$retval = ! [[ $retval1 && $retval2 ]];

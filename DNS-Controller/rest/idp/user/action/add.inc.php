@@ -18,7 +18,7 @@ EOT;
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
 //echo param('port').",".  param('subdomain').",".  param('domain').",".  param('infraip').",". param('webappip');
-$retval = $function(param('subdomain'), param('username'), param('last_name'), param('password'));
+$retval = $function(param('username'), param('password'), param('last_name'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));

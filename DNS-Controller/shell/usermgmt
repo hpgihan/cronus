@@ -1,33 +1,42 @@
 #!/bin/bash
 
 # IDP/LDAP user management
-# USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]
-# 
+# USAGE: usermgmt add EMAIL USERPASSWORD SURNAME
+#	 usermgmt delete EMAIL 
+#	 usermgmt add-domain DOMAIN
+#	 usermgmt delete-domain DOMAIN
+# 	 usermgmt change-passwd EMAIL NEWPASSWORD
+#
+# Ex: EMAIL user@mail.thinkcube.net
+#     DOMAIN mail.thinkcube.net
+#
 # Create a file called settings at the same directory level as this script
 # Example settings file entries for searchbase dc=thinkcube,dc=net
 #  with rootuser admin and root password dirtysecret.
 #
-# DC1=thinkcube
-# DC2=net
 # ROOTUSER=admin
 # LDAPPASSWD=dirtysecret
 
 DESCRIPTS=`dirname $0`
 source $DESCRIPTS/settings
 
-
-if [ ! $ROOTUSER ] || [ ! $LDAPPASSWD ] || [ ! $DC1 ] || [ ! $DC2 ] ; then
+if [ ! $ROOTUSER ] || [ ! $LDAPPASSWD ] ; then
     echo "Missing database settings. Add them in ${DESCRIPTS}/settings"
     exit 1
 fi
 
-OU=$2
-LDAPUID=$3
+EMAIL=$2
+USERPASSWORD=$3
 SN=$4
-CN=$LDAPUID
-USERPASSWORD=$5
-MAIL=${LDAPUID}@${OU}.${DC1}.${DC2}
 
+LDAPUID=${EMAIL%@*}
+DOMAIN=${EMAIL#*@}
+OU=${DOMAIN%%.*}
+TEMP=${DOMAIN#*.}
+DC1=${TEMP%.*}
+DC2=${DOMAIN##*.}
+
+CN=$LDAPUID
 SEARCHBASE=dc=${DC1},dc=${DC2}
 BINDDN=cn=${ROOTUSER},${SEARCHBASE}
 
@@ -35,7 +44,7 @@ case $1
 in
     add)
 	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nobjectClass: inetOrgPerson\nuid: ${LDAPUID}\nsn: ${SN}\ncn: ${CN}"\
-		"\nuserPassword: ${USERPASSWORD}\nmail: ${MAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
+		"\nuserPassword: ${USERPASSWORD}\nmail: ${EMAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
 	# Whoever calls this must add a password-less user to Zimbra!
     ;;
 
@@ -52,7 +61,19 @@ in
 	#Use with care. This can kill baby seals.	
     ;;
 
+    change-passwd)
+	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nchangetype: modify\nreplace: userPassword\nuserPassword: ${USERPASSWORD}"\
+		| ldapmodify -w $LDAPPASSWD -D $BINDDN
+    ;;
+
     *)
-    echo "USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]"
+    echo -e "USAGE: usermgmt add EMAIL USERPASSWORD SURNAME\n"\
+		"\tusermgmt delete EMAIL\n"\
+		"\tusermgmt add-domain DOMAIN\n"\
+		"\tusermgmt delete-domain DOMAIN\n"\
+		"\tusermgmt change-passwd EMAIL NEWPASSWORD\n"\
+		" Ex: EMAIL user@mail.thinkcube.net\n"\
+		"     DOMAIN mail.thinkcube.net"
+
     exit 1
 esac
