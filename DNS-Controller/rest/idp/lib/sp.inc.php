@@ -1,3 +1,5 @@
+<?php
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -16,11 +18,11 @@
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
 /*
+*
 * Library functions for Saml Service Provider handling
 *
 */
 
-<?php
 
 //Service Provider add
 function add($domain) {

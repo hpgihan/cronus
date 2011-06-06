@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+#
+# Server Restart script for Tenant Server
+#
+
 echo 'Starting Tenants Server'
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:$HOME/bin; export PATH
 case "$1" in

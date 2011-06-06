@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+#
 # Usage : mysql {create} {port}
 # Usage : mysql {destroy}
+#
 
 PROGRAM='mysql';
 PORT=$2
@@ -85,7 +87,6 @@ case $1 in
 					mkdir -p /home/cust${PORT}/var/run/mysqld
 					chown -R mysql /home/cust${PORT}/var/run/mysqld
 			fi
-			# added by gihan
 			# create mysqld instance log directory and error.log file 
 			if [ ! -d /home/cust${PORT}/var/log/mysql ];then
 					mkdir -p /home/cust${PORT}/var/log/mysql
@@ -107,20 +108,9 @@ case $1 in
 			mysqld_multi start $ID 
 			sleep 30	
 			# Reset mysql root to same as user password
-			#echo "$MYSQL_PORT"
-			#echo "$DBPASS"
 			mysqladmin -P $MYSQL_PORT --protocol tcp -u root password $DBPASS
 		
-
-			# Create myql user
-		#sleep 5	
-			#echo $MYSQL
-			#echo $DBPASS
-			#$MYSQL -u root --password='$DBPASS' -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
-			#echo cust${PORT}
-		
 			mysql -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u root --password=${DBPASS} -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
-			#echo mysql -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u root --password=${DBPASS} -e"GRANT ALL PRIVILEGES ON *.* TO 'cust${PORT}'@'localhost' IDENTIFIED BY '${DBPASS}';"	
 
 		fi
 	;;

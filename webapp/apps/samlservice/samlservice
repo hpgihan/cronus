@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+#
 # Deploy PHP SAML Service
+# Usage: samlservice {create} {PORT DOMAIN IDPHOST}
+#
 
 PROGRAM="samlservice"
 DEPSCRIPTS=`dirname $0`
@@ -28,7 +31,7 @@ IDPHOST=$4
 IDPCERT=$5
 
 if [ ! $PORT ] || [ ! $DOMAIN ] || [ ! $IDPHOST ] || [ ! $IDPCERT ]; then
-    echo "Usage: samlservice {create} {PORT DOMAIN IDPHOST IDPCERT}"
+    echo "Usage: samlservice {create} {PORT DOMAIN IDPHOST}"
     exit 1
 fi
 
@@ -47,7 +50,7 @@ in
         cp -r ${DEPSCRIPTS}/deploy-${PROGRAM}/${PROGRAM} /home/cust${PORT}/var/
         cd /home/cust${PORT}/var/${PROGRAM}
 
-        # insert cust domain as entity name for cust samlservice
+        # insert tenant domain as entity name for tenant samlservice
         mv config/authsources.php config/authsources.php.tmp
         cat config/authsources.php.tmp | sed -e "s/XXXDOMAINXXX/$DOMAIN/g" > config/authsources.php
         rm config/authsources.php.tmp
@@ -61,6 +64,6 @@ in
     ;;
 
     *)
-        echo "Usage: samlservice {create|} {PORT DOMAIN IDPHOST IDPCERT}"
+        echo "Usage: samlservice {create|} {PORT DOMAIN IDPHOST}"
         exit 1
 esac
