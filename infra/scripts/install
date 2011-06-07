@@ -23,8 +23,8 @@ DESCRIPTS=`dirname $0`
 
 available_site_path='/etc/apache2/sites-available'
 default_docroot='/var/www/cronus-infra'
-http_tmpl='../conf/cronus_infra'
-https_tmpl='../conf/cronus_infra-ssl'
+http_tmpl='../conf/cronus_infra.sample'
+https_tmpl='../conf/cronus_infra-ssl.sample'
 http_site='00000-cronus_infra'
 https_site='00000-cronus_infra-ssl'
 https_conf=${available_site_path}/${https_site}
