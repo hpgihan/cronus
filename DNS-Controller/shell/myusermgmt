@@ -39,7 +39,7 @@ fi
 USERNAME=$2;
 PASSWORD=$3;
 
-if [ ! $USERNAME ] && [ !$PASSWORD ] ; then
+if [ ! $USERNAME ] || [ ! $PASSWORD ] ; then
     echo "Username Password not provided"
     exit 1
 fi
