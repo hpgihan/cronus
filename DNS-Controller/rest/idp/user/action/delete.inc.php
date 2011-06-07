@@ -35,7 +35,7 @@
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
 //echo param('port').",".  param('subdomain').",".  param('domain').",".  param('infraip').",". param('webappip');
-$retval = delete_user(param('subdomain'), param('username'));
+$retval = delete_user(param('username'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));

@@ -39,7 +39,7 @@ function add($username, $password, $lastname) {
 }
 
 // IDP user delete
-function delete_user($subdomain, $username){
+function delete_user($username){
         global $shell_path;
         $retval = true;
 
