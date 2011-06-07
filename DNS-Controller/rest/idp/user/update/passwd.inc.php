@@ -34,7 +34,7 @@
 // Include helper lib file
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-$retval = change_passwd(param('subdomain'), param('username'), param('password'));
+$retval = change_passwd(param('username'), param('password'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));

@@ -55,7 +55,7 @@ function delete_user($subdomain, $username){
 }
 
 // Change password
-function change_passwd($subdomain, $username, $password){
+function change_passwd($username, $password){
         global $shell_path;
         $retval = true;
 
