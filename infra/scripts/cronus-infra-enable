@@ -2,6 +2,9 @@
 
 # Run this script as root or with sudo
 
+# This script is for post-install for packagers. If you
+# use the install script, there is no need to run rhis.
+
 http_site='0-cronus_infra'
 https_site='0-cronus_infra-ssl'
 
