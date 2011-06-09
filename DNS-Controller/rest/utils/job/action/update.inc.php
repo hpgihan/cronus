@@ -23,13 +23,13 @@
 *
 * passed values:
 * jobid : ID of Job to be updated
-* statis : success, fail status of job
+* status : success, fail status of job
 *
 */
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-$retval = $function(param('jobid'), param('status'));
+$retval = update_customer_state(param('jobid'), param('status'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));

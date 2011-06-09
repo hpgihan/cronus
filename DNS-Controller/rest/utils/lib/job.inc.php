@@ -23,18 +23,58 @@
 *
 */
 
-function update ($jobid) {
-	global $shell_path;
-	$retval = true;
-	// Validate input
-	if (! preg_match('/^[a-z][a-z0-9_]+$/', $subdomain))
-		$retval = false;
+function update_customer_state($job_id, $job_status){
+	$dbh = db_connect();
 
-	if ($retval) {
-		exec("cd $shell_path && sudo ./dns add $subdomain $infraip $webappip", $output, $retval1);
-        $retval = !$retval1;
+	$sql = "SELECT * FROM job_queue WHERE id=:id";	
+	$st = $dbh->prepare($sql);
+	$st->bindValue(':id', $job_id, PDO::PARAM_STR);
+
+	$st->execute();
+	$rows = $st->fetchAll(PDO::FETCH_ASSOC);
+
+	$job_type = $rows[0]['job_type'];
+	$status = $job_status;
+
+	$change_state_to = '';
+	$tenant_id = $rows[0]['tenant_id'];
+
+	if($job_type == '1'){
+		if($status == '1'){
+			$change_state_to ='2';
+
+		}
+		else{
+			$change_state_to ='3';
+		}
 	}
-	
-	return $retval;
+        else if($job_type == '2'){
+
+        }
+        else if($job_type == '3'){
+		if($status == '1'){
+			$change_state_to ='2';
+		}
+		else{
+			$change_state_to ='1';
+		}
+        }
+        else if($job_type == '4'){
+		if($status == '1'){
+			$change_state_to ='1';
+		}
+		else{
+			$change_state_to ='2';
+		}
+        }
+        else if($job_type == '5'){
+		if($status == '1'){
+			$change_state_to ='0';
+		}
+        }
+	$sql = "UPDATE tenants SET status = $change_state_to WHERE id = $tenant_id";
+	$st = $dbh->prepare($sql);
+	$rt = $st->execute();
+return $rt;
 }
 ?>
