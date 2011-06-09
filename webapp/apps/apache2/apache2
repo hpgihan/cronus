@@ -21,7 +21,7 @@
 # Apache 2 virtualize
 # Starts multiple instances of Apache2 using different ports.
 # https port = http port + 1000
-# Usage : apache2 {create|} {PORT}
+# USAGE : apache2 {create|} {PORT} {USERNAME}
 #
 
 PROGRAM="apache2"
@@ -37,6 +37,7 @@ APACHE_CONF='apache2.conf.bsd'
 APACHE_STARTUP_SCRIPT='/usr/local/sbin/apachectl'
 
 PORT=$2
+USERNAME=$3
 SPORT=`expr $2 + 1000`
 MYSQLPORT=`expr $2 - 1000`
 CHOWN='chown'
@@ -71,7 +72,7 @@ case $1 in
         fi
 		cat $APACHE_CONF_DIR/$APACHE_CONF | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/apache2.conf
 		cat $APACHE_CONF_DIR/ports.conf | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/ports.conf
-		cat $APACHE_CONF_DIR/sites-available/thinkcube | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/sites-available/thinkcube
+		cat $APACHE_CONF_DIR/sites-available/thinkcube | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" | sed -e "s/XXUSERNAMEXX/$USERNAME/g "> /home/cust${PORT}/etc/apache2/sites-available/thinkcube
 		cat $APACHE_CONF_DIR/php.ini | sed -e "s/NNNN/$PORT/g" | sed -e "s/SSSS/$MYSQLPORT/g"> /home/cust${PORT}/etc/apache2/php.ini
 
 		# BSD specific

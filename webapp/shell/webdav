@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+#
+# USAGE: webdav {add} {PORT} {USERNAME} {PASSWORD}
+# USAGE: webdav {delete} {PORT} {USERNAME}
+#
+
+PORT=$2
+USERNAME=$3
+PASSWORD=$4
+DEPSCRIPTS=`dirname $0`
+
+case $1 in
+	add)
+        if [ ! $PORT ] || [ ! $USERNAME ] || [ ! $PASSWORD ] ; then
+            echo "port username and password required"
+            exit 1
+        fi
+
+        if [ ! -f /home/cust${PORT}/var/passwd.dav ] ; then
+            htpasswd -c -b /home/cust${PORT}/var/passwd.dav $USERNAME $PASSWORD
+        else
+            htpasswd -b /home/cust${PORT}/var/passwd.dav $USERNAME $PASSWORD
+        fi
+    ;;
+
+	delete)
+    if [ ! $PORT ] || [ ! $USERNAME ] ; then
+        echo "port username required"
+        exit 1
+    fi
+    
+    htpasswd -d /home/cust${PORT}/var/passwd.dav $USERNAME
+    ;;
+
+    *)
+    echo "USAGE: webdav {create} {PORT} {USERNAME}"
+    exit 1
+    ;;
+esac
+

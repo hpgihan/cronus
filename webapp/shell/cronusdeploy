@@ -17,11 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-# Usage : cronusdeploy {create} {port} {diskquota}
-# Usage : cronusdeploy {destroy} {port}
+#
+# USAGE : cronusdeploy {create} {PORT} {USERNAME} {PASSWORD} {DISKQUOTA}
+# USAGE : cronusdeploy {destroy} {PORT}
+#
 
 PORT=$2
-DISKQUOTA=$3
+USERNAME=$3
+PASSWORD=$4
+DISKQUOTA=$5
 DEPSCRIPTS=`dirname $0`
 ID=`expr $PORT - 8080`
 . $DEPSCRIPTS/shell.inc.sh
@@ -153,9 +157,11 @@ case $1 in
 
 
 	fi
+	# deploy webdav
+	${DEPSCRIPTS}/webdav add $PORT $USERNAME $PASSWORD $*
 
 	# do apache virtualization
-	${DEPSCRIPTS}/apache2/apache2 create $PORT $*
+	${DEPSCRIPTS}/apache2/apache2 create $PORT $USERNAME $*
 
 	# do mysql virtualization
 	${DEPSCRIPTS}/mysql/mysql create $PORT
