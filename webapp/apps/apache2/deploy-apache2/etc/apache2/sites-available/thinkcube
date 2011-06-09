@@ -41,15 +41,8 @@
     Allow from All
     </Directory>
 
-    Alias /webdav /home/custNNNN/var/www/
+    Alias /webdav /home/custNNNN/var/www
     
-    <Directory /home/custNNNN/var/www/>
-        Options Indexes MultiViews
-        AllowOverride All
-        Order allow,deny
-        allow from all
-    </Directory>
-
     <Location /webdav>
         DAV On
         AuthType Basic
@@ -111,15 +104,8 @@
     Allow from All
     </Directory>
 
-    Alias /webdav /home/custNNNN/var/www/
+    Alias /webdav /home/custNNNN/var/www
     
-    <Directory /home/custNNNN/var/www/>
-        Options Indexes MultiViews
-        AllowOverride All
-        Order allow,deny
-        allow from all
-    </Directory>
-
     <Location /webdav>
         DAV On
         AuthType Basic
