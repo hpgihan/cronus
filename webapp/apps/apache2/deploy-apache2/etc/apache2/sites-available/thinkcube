@@ -54,7 +54,7 @@
         DAV On
         AuthType Basic
         AuthName "webdav"
-        AuthUserFile /var/passwd.dav
+        AuthUserFile /home/custNNNN/var/passwd.dav
         Require user XXUSERNAMEXX
     </Location>
     
@@ -124,7 +124,7 @@
         DAV On
         AuthType Basic
         AuthName "webdav"
-        AuthUserFile /var/passwd.dav
+        AuthUserFile /home/custNNNN/var/passwd.dav
         Require user XXUSERNAMEXX
     </Location>
 
