@@ -98,7 +98,7 @@ case $1 in
 
 	# check file system exist
 	if [ -d /home/cust${PORT} ];then
-		echo "Customer already exits !"
+		echo "Customer already exist !"
                 exit 1
 	fi
 	
@@ -157,17 +157,15 @@ case $1 in
 
 
 	fi
-	# deploy webdav
-	${DEPSCRIPTS}/webdav add $PORT $USERNAME $PASSWORD $*
 
 	# do apache virtualization
 	${DEPSCRIPTS}/apache2/apache2 create $PORT $USERNAME $*
 
+	# deploy webdav
+	${DEPSCRIPTS}/webdav add $PORT $USERNAME $PASSWORD $*
+
 	# do mysql virtualization
 	${DEPSCRIPTS}/mysql/mysql create $PORT
-
-    	# deploy samlservice
-    	#${DEPSCRIPTS}/samlservice/samlservice create $PORT $DOMAIN $IDPHOST $IDPCERT
 
 	;;
 
@@ -307,7 +305,7 @@ case $1 in
 		fi
 	;;
 	*)
-                echo "Usage: webappdeploy {create} {port} {featues *}"
+                echo "Usage: webappdeploy {create} {PORT} {USERNAME} {PASSWORD} {featues *}"
                 exit 1
     ;;
 esac
