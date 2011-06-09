@@ -56,7 +56,7 @@
 <VirtualHost *:NNNN>
 	ServerAdmin webmaster@localhost
 	
-	DocumentRoot /home/custNNNN/var/www/cms_website
+	DocumentRoot /home/custNNNN/var/www/website
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride All
