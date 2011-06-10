@@ -28,6 +28,6 @@ job_type_delete = 5
 
 controller_ip='XXCNTRLIPXX'
 
-job_finalyze_url = 'https://controller_ip/api/utils/action/job/update'
+job_finalyze_url = 'https://' + controller_ip + '/api/utils/action/job/update'
 
 api_key='ca899e52f5d93bb1cdb623970c894f4cd17eeb3ea752e48a74bbacdb9ef18c08'
