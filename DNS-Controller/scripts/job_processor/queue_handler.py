@@ -24,6 +24,7 @@ import urllib2
 import urllib
 import time
 import MySQLdb
+import hashlib
 
 import config
 import utils
@@ -229,9 +230,16 @@ class JobHandler(threading.Thread):
             logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' successful')
             self.job.status = 3
         try:
-            params = urllib.urlencode(json.loads('{"jobid":"'+ str(self.job.job_id) + '", "status":"' + str(self.job.status) + '"}'))
-            url = urllib2.urlopen(config.controller_ip, params)
+            finalyze_url = config.job_finalyze_url + '/jobid/' + str(self.job.job_id) + '/status/' + str(self.job.status)
+            hash_lib = hashlib.md5()
+            hash_lib.update(config.api_key + '_' + finalyze_url)        
+            token = hash_lib.hexdigest()
+            params = urllib.urlencode(json.loads('{"token":"' + token + '"}'))
+            print 'calling job finalyze call - ' + finalyze_url
+            url = urllib2.urlopen(finalyze_url, params)
             url.close()
+            res = url.read()
+            print 'Result - ' + res
         except IOError:
             logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
             logger_error.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
