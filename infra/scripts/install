@@ -98,5 +98,5 @@ cp -r proxy ${doc_root}/api/
 
 echo "Proxy Server successfully installed"
 
-echo "Attempting to reloading Apache2 configuration"
+echo "Attempting to reload Apache2 configuration"
 /etc/init.d/apache2 reload

@@ -23,6 +23,26 @@
 
 DESCRIPTS=`dirname $0`
 
+available_site_path='/etc/apache2/sites-available'
+default_docroot='/var/www/cronus-webappc'
+http_tmpl='../conf/cronus_webappc.sample'
+https_tmpl='../conf/cronus_webappc-ssl.sample'
+http_site='0-cronus_webappc'
+https_site='0-cronus_webappc-ssl'
+https_conf=${available_site_path}/${https_site}
+http_conf=${available_site_path}/${http_site}
+
+echo "Attempting to create ${https_conf}"
+cp ${https_tmpl} ${https_conf}
+echo "Attempting to create ${http_conf}"
+cp ${http_tmpl} ${http_conf}
+echo "Attempting to enable ${https_conf}"
+a2ensite ${https_site}
+echo "Attempting to enable ${http_conf}"
+a2ensite ${http_site}
+echo "Attempting to enable Apache2 modules: SSL, Rewrite, Headers"
+a2enmod ssl rewrite headers
+
 function prompt_reinstall(){
     echo "Cronus already installed at /opt/cronus. Reinstall?(yes|no)"
     read answer
@@ -55,7 +75,7 @@ fi
 echo "Creating directory /opt/cronus"
 echo "Copying required scripts to /opt/cronus/shell"
 if [ ! -d /opt/cronus/shell ] ; then
-    sudo mkdir -p /opt/cronus/shell
+    mkdir -p /opt/cronus/shell
 fi
 
 cd ../apps
@@ -68,8 +88,10 @@ echo "Enter document root of your webserver"
 read doc_root
 
 echo "Copying REST api to ${doc_root}/api"
-if [ ! -d /var/www/api ] ; then
-    sudo mkdir ${doc_root}/api
+if [ ! -d ${default_docroot}/api ] ; then
+    mkdir ${doc_root}/api
+    sed -e "s:$default_docroot:$doc_root:g" ${http_tmpl} > ${http_conf}
+    sed -e "s:$default_docroot:$doc_root:g" ${https_tmpl} > ${https_conf}
 fi
 
 cd ../../
@@ -82,5 +104,8 @@ echo "Copying Startup script; {tenants_start} to /etc/init.d"
 cd ../scripts
 sudo cp tenants_start /etc/init.d
 sudo update-rc.d tenants_start defaults
+
+echo "Attempting to reload Apache2 configuration"
+/etc/init.d/apache2 reload
 
 echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/cronus/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"
