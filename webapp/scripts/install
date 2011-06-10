@@ -86,12 +86,13 @@ sudo cp -r * /opt/cronus/shell
 
 echo "Enter document root of your webserver"
 read doc_root
+echo "Attempting to write new Apache2 configuration files"
+sed -e "s:$default_docroot:$doc_root:g" ${http_tmpl} > ${http_conf}
+sed -e "s:$default_docroot:$doc_root:g" ${https_tmpl} > ${https_conf}
 
 echo "Copying REST api to ${doc_root}/api"
 if [ ! -d ${default_docroot}/api ] ; then
     mkdir -p ${doc_root}/api
-    sed -e "s:$default_docroot:$doc_root:g" ${http_tmpl} > ${http_conf}
-    sed -e "s:$default_docroot:$doc_root:g" ${https_tmpl} > ${https_conf}
 fi
 
 cd ../../
