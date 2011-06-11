@@ -84,3 +84,28 @@ function check_integrity($auth){
 	}
 
 }
+
+// Database helper library
+function db_connect($dbdsn='', $dbuser='', $dbpasswd='') {
+    global $config;
+  
+    $dbh = null;
+  
+    $dbdsn = ($dbdsn == '' && isset($config['dbdsn'])) ? $config['dbdsn'] : $dbdsn;
+    $dbuser = ($dbuser == '' && isset($config['dbuser'])) ? $config['dbuser'] : $dbuser;
+    $dbpasswd = ($dbpasswd == '' && isset($config['dbpasswd'])) ? $config['dbpasswd'] : $dbpasswd;
+ 
+    if ($dbdsn) {
+  
+        try {
+            if ($dbuser && $dbpasswd)
+                $dbh = new PDO($dbdsn, $dbuser, $dbpasswd);
+            else
+                $dbh = new PDO($dbdsn);
+            return $dbh;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    return false;
+ }
