@@ -23,7 +23,7 @@
 *
 */
 
-$dbdsn = 'XXDBHOSTXX';
+$dbdsn = 'mysql:host=localhost;dbname=cronus';
 $dbuser = 'XXDBUSERXX';
 $dbpasswd = 'XXDBPASSWDXX';
 

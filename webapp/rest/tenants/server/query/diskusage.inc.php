@@ -17,13 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-
 /*
 *
-* Usage Example: /api/tenants/action/tenant/enable
-*
-* passed values:
-* port : Port assigned to tenant
+* Usage Example: /api/tenants/query/server/diskusage
 *
 * Returns: JSON {status:success|fail}
 *
@@ -32,10 +28,11 @@
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
 
-$retval = $function(param('port'));
+$retval = $function();
 
 if($retval) {
-	print json_encode(array('status'=>'success'));
+	print json_encode($retval);
 } else {
 	print json_encode(array('status'=>'fail'));
 }
+

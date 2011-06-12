@@ -19,11 +19,11 @@
 
 /*
 *
-* Helper Library function for job update
+* Helper Library functions for job update
 *
 */
 
-function update_customer_state($job_id, $job_status){
+function update($job_id, $job_status){
 	$dbh = db_connect();
 
 	$sql = "SELECT * FROM job_queue WHERE id=:id";	

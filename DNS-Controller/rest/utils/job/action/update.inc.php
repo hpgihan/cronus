@@ -29,9 +29,9 @@
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-$retval = update_customer_state(param('jobid'), param('status'));
+$retval = $function(param('jobid'), param('status'));
 
-if($retval) {
+if($retval > 0) {
 	print json_encode(array('status'=>'success'));
 } else {
 	print json_encode(array('status'=>'fail'));

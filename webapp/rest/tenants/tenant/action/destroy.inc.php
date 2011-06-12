@@ -1,3 +1,5 @@
+<?php
+
 # Cronus is a Multi-Tenant virtualized PaaS solution developed by 
 # Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
 #
@@ -15,26 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-<?php
-
-function _usage() {
-	echo <<<EOT
-Usage Example: /api/tanents/action/tanent/destroy
-
-passed values:
-port : 8081 is customer's webapp server port
-domain : full domain name.
-subdomain : customer's host part of the subdomain 
-infraip : real ip address of the infrastructure server (my ip)
-webappip : ip address of webapp server where the customer resides
-
-Returns: JSON {status:success|fail}
-EOT;
-}
+/*
+*
+* Usage Example: /api/tenants/action/tenant/destroy
+*
+* passed values:
+* port : Port assigned to tenant
+*
+* Returns: JSON {status:success|fail}
+*
+*/
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-//echo param('port').",".  param('subdomain').",".  param('domain').",".  param('infraip').",". param('webappip');
+
 $retval = $function(param('port'));
 
 if($retval) {

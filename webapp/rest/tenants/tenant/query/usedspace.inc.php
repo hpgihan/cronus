@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-
 /*
 *
-* Usage Example: /api/tenants/action/tenant/enable
+* Returns space used by a tenant
+*
+* Usage Example: /api/tenants/query/tenant/usedspace
 *
 * passed values:
 * port : Port assigned to tenant
@@ -35,7 +36,8 @@ include ("$module/$action_on/config.php");
 $retval = $function(param('port'));
 
 if($retval) {
-	print json_encode(array('status'=>'success'));
+	print json_encode($retval);
 } else {
 	print json_encode(array('status'=>'fail'));
 }
+
