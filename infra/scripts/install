@@ -92,8 +92,9 @@ if [ ! -d ${default_docroot}/api ] ; then
     mkdir -p ${doc_root}/api
 fi
 
-cd ../../
-cp -r api ${doc_root}
+cd ../../scripts
+sudo copyapi
+cd ..
 
 cd infra/rest
 cp -r proxy ${doc_root}/api/
