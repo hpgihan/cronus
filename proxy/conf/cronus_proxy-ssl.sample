@@ -1,10 +1,10 @@
-# Configuratoin for Cronus-Infra SSL VirtualHost
+# Configuratoin for cronus-proxy SSL VirtualHost
 
 <VirtualHost *:443>
         ServerAdmin webmaster@localhost
 
-        DocumentRoot /var/www/cronus-infra
-        <Directory /var/www/cronus-infra/>
+        DocumentRoot /var/www/cronus-proxy
+        <Directory /var/www/cronus-proxy/>
                 Options Indexes FollowSymLinks MultiViews
                 AllowOverride All
                 Order allow,deny
@@ -14,8 +14,8 @@
         LogLevel warn
 
         # Apache logs
-        ErrorLog /var/log/apache2/cronus_infra_ssl_error.log
-        CustomLog /var/log/apache2/cronus_infra_ssl_access.log combined
+        ErrorLog /var/log/apache2/cronus_proxy_ssl_error.log
+        CustomLog /var/log/apache2/cronus_proxy_ssl_access.log combined
 
         # Using SSL
         SSLEngine on

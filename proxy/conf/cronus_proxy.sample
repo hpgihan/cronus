@@ -1,12 +1,12 @@
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 
-	DocumentRoot /var/www/cronus-infra
+	DocumentRoot /var/www/cronus-proxy
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory /var/www/cronus-infra/>
+	<Directory /var/www/cronus-proxy/>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny
@@ -16,6 +16,6 @@
 	LogLevel warn
 
 	# Apache logs
-	ErrorLog /var/log/apache2/cronus_infra_error.log
-	CustomLog /var/log/apache2/cronus_infra_access.log combined
+	ErrorLog /var/log/apache2/cronus_proxy_error.log
+	CustomLog /var/log/apache2/cronus_proxy_access.log combined
 </VirtualHost>
