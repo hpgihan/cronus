@@ -1,10 +1,31 @@
 #!/bin/bash
 
-# Usage : platformdeploy {create} {port} {diskquota}
-# Usage : platform {destroy} {port}
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+#
+# USAGE : cronusdeploy {create} {PORT} {USERNAME} {PASSWORD} {DISKQUOTA}
+# USAGE : cronusdeploy {destroy} {PORT}
+#
 
 PORT=$2
-DISKQUOTA=$3
+USERNAME=$3
+PASSWORD=$4
+DISKQUOTA=$5
 DEPSCRIPTS=`dirname $0`
 ID=`expr $PORT - 8080`
 . $DEPSCRIPTS/shell.inc.sh
@@ -77,7 +98,7 @@ case $1 in
 
 	# check file system exist
 	if [ -d /home/cust${PORT} ];then
-		echo "Customer already exits !"
+		echo "Customer already exist !"
                 exit 1
 	fi
 	
@@ -138,13 +159,13 @@ case $1 in
 	fi
 
 	# do apache virtualization
-	${DEPSCRIPTS}/apache2/apache2 create $PORT $*
+	${DEPSCRIPTS}/apache2/apache2 create $PORT $USERNAME $*
+
+	# deploy webdav
+	${DEPSCRIPTS}/webdav add $PORT $USERNAME $PASSWORD $*
 
 	# do mysql virtualization
 	${DEPSCRIPTS}/mysql/mysql create $PORT
-
-    	# deploy samlservice
-    	#${DEPSCRIPTS}/samlservice/samlservice create $PORT $DOMAIN $IDPHOST $IDPCERT
 
 	;;
 
@@ -196,8 +217,8 @@ case $1 in
 		fi
 
 	# If deleting customer is currently disabled, remove it from disabled customer list
-	if [ -f /etc/thinkcube/disabled_customers/${PORT} ];then
-		rm /etc/thinkcube/disabled_customers/${PORT}
+	if [ -f /etc/cronus/disabled_customers/${PORT} ];then
+		rm /etc/cronus/disabled_customers/${PORT}
 	fi
 	 	
 	if grep -q "mysqld$ID" $MYSQL_CONF;then
@@ -245,11 +266,10 @@ case $1 in
 			echo "There is no customer on port ${PORT}";
 		else # If the customer exists
 			# Touch the disabled_customers file regardless of the deployment type
-			if [ ! -d /etc/thinkcube ];then
-				mkdir /etc/thinkcube
-				mkdir /etc/thinkcube/disabled_customers
+			if [ ! -d /etc/cronus/disabled_customers ];then
+				mkdir -p /etc/cronus/disabled_customers
 			fi
-			touch /etc/thinkcube/disabled_customers/${PORT}
+			touch /etc/cronus/disabled_customers/${PORT}
 	
 			if [[ $SERVER == 'basic' ]];
 			then
@@ -268,7 +288,7 @@ case $1 in
 		then
 			echo "There is no customer on port ${PORT}";
 		else
-			rm /etc/thinkcube/disabled_customers/${PORT}
+			rm /etc/cronus/disabled_customers/${PORT}
 			if [[ $SERVER == 'basic' ]];
 			then
 				${DEPSCRIPTS}/mysql enable $PORT
@@ -285,7 +305,7 @@ case $1 in
 		fi
 	;;
 	*)
-                echo "Usage: webappdeploy {create} {port} {featues *}"
+                echo "Usage: webappdeploy {create} {PORT} {USERNAME} {PASSWORD} {featues *}"
                 exit 1
     ;;
 esac

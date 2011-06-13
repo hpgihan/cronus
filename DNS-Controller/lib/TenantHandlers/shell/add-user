@@ -1,5 +1,23 @@
 #!/bin/bash
-# usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+# USAGE: add-user -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q
 
 DESCRIPTS=`dirname $0`
 
@@ -14,11 +32,13 @@ function add_tenant_deployment()
     local subdomain=$4
     local diskquota=$5
     local webapp_ip=$6
+    local username=$7
+    local password=$8
 
     local rest_url="https://${webapp_ip}/api/tenants/action/tenant/create"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"port\":\"'$port'\", \"diskquota\":\"'$diskquota'\", \"token\":\"'$token'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    local values='{\"port\":\"'$port'\", \"diskquota\":\"'$diskquota'\", \"username\":\"'$username'\", \"password\":\"'$password'\", \"token\":\"'$token'\"}'
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
     #echo "insert into ${deployment_table} (job_id, category, rest_url, rest_array, status, priority_id) values ($job_id, 'webapp', '$rest_url', '$values', 0, 1)"
 }
 
@@ -35,7 +55,7 @@ function add_sp_deployment()
     local rest_url="https://${webapp_ip}/api/tenants/action/sp/create"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"port\":\"'${port}'\", \"domain\":\"'${domain}'\", \"token\":\"'${token}'\", \"idphost\":\"'${idp_dns}'\", \"idpcert\":\"'${idp_cert}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
     #echo "insert into ${deployment_table} (job_id, category, rest_url, rest_array, status, priority_id) values ($job_id, 'webapp', '$rest_url', '$values', 0, 1)"
 }
 
@@ -51,7 +71,7 @@ function add_vhost_deployment()
     local rest_url="https://${infra_ip}/api/proxy/action/vhost/create"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"port\":\"'${port}'\", \"webappip\":\"'${webapp_ip}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'infra', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'infra', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 # add dns deployment to the queue
@@ -66,7 +86,7 @@ function add_dns_deployment()
     local rest_url="https://${dns_ip}/api/dns/action/domain/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"subdomain\":\"'${subdomain}'\", \"infraip\":\"'${infra_ip}'\", \"webappip\":\"'${webapp_ip}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 # add domain to idp metadata
@@ -79,7 +99,7 @@ function add_idp_sp_deployment()
     local rest_url="https://${idp_dns}/api/idp/action/sp/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 function add_idp_user_deployment()
@@ -93,8 +113,8 @@ function add_idp_user_deployment()
 
     local rest_url="https://${idp_dns}/api/idp/action/user/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"subdomain\":\"'${subdomain}'\", \"last_name\":\"'${lastname}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"lastname\":\"'${lastname}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 # pass arguments
@@ -301,7 +321,7 @@ else
     job_id=1
 fi
 
-add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip
+add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip $username $password
 add_sp_deployment $job_id $port $domain $idp_dns $IDP_cert $webapp_ip
 add_vhost_deployment $job_id $port $domain $webapp_ip $infra_ip
 add_dns_deployment $job_id $subdomain $dns_ip $webapp_ip $infra_ip

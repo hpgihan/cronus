@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
 # MySQL user management
 # USAGE: usermgmt {add|delete} {USERNAME} [{PASSWORD}]
 #
@@ -22,6 +39,11 @@ fi
 USERNAME=$2;
 PASSWORD=$3;
 
+if [ ! $USERNAME ] && [ ! $PASSWORD ] ; then
+    echo "Username Password not provided"
+    exit 1
+fi
+
 case $1
 in
     add)
@@ -29,6 +51,9 @@ in
     ;;
     delete)
 	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "DELETE FROM users WHERE username='${USERNAME}'"
+    ;;
+    change-passwd)
+	mysql -u $DBUSER --password=$DBPASSWD -D $USERSTORE -e "UPDATE users SET password=md5('${PASSWORD}') WHERE username='${USERNAME}'"
     ;;
     *)
     echo "USAGE: myusermgmt {add|delete} {USERNAME} [{PASSWORD}]"

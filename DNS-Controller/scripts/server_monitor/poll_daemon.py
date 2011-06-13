@@ -1,3 +1,20 @@
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
 import threading
 import datetime
 import subprocess
@@ -14,11 +31,11 @@ class PollHandler:
         pass
 
     def start(self):
-        if not os.path.exists('/var/log/platform'):
-            os.makedirs('/var/log/platform')
+        if not os.path.exists('/var/log/cronus'):
+            os.makedirs('/var/log/cronus')
 
         logger_activity = logging.getLogger("activity_log")
-        ah = logging.FileHandler('/var/log/platform/server_status.log')
+        ah = logging.FileHandler('/var/log/cronus/server_status.log')
         ah.setLevel(logging.DEBUG)
         logger_activity.addHandler(ah)
 
@@ -95,4 +112,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    print 'Run through daemon.py'
+    print 'Run through sever_poller.py'

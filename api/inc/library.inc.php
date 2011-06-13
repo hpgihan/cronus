@@ -1,5 +1,28 @@
 <?php
 
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+/*
+*
+* Helper Library functions for the api
+*
+*/
+
 // Insert value for key to param
 function _insert_parameters($k, $v) {
     global $arg;
@@ -42,6 +65,7 @@ function check_integrity($auth){
 
 	$request = $_SERVER['REQUEST_URI'];
 	$server = $_SERVER['SERVER_NAME'];
+	$port = $_SERVER['SERVER_PORT'];
     if($_SERVER['HTTPS']){
         $protocol='https';
     }
@@ -49,7 +73,12 @@ function check_integrity($auth){
         $protocol='http';
     }
 
-	$url = $protocol."://".$server.$request;
+	if($port != 80 || $port != 443){
+	    $url = $protocol."://".$server.":".$port.$request;
+	}
+	else{
+	    $url = $protocol."://".$server.$request;
+	} 
 
 	$newauth = md5($key."_".$url);
 
@@ -61,3 +90,25 @@ function check_integrity($auth){
 	}
 
 }
+
+// Database helper library
+function db_connect() {
+    $dbh = null;
+    global $dbdsn;
+    global $dbuser;
+    global $dbpasswd;
+  
+    if ($dbdsn) {
+  
+        try {
+            if ($dbuser && $dbpasswd)
+                $dbh = new PDO($dbdsn, $dbuser, $dbpasswd);
+            else
+                $dbh = new PDO($dbdsn);
+            return $dbh;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    return false;
+ }

@@ -1,10 +1,28 @@
 #!/bin/sh -e
 
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+#
 # Apache 2 virtualize
 # Starts multiple instances of Apache2 using different ports.
 # https port = http port + 1000
-# Usage : apache2 {create|} {8081|8082|8083 etc.}
-
+# USAGE : apache2 {create|} {PORT} {USERNAME}
+#
 
 PROGRAM="apache2"
 DEPSCRIPTS=`dirname $0`
@@ -19,6 +37,7 @@ APACHE_CONF='apache2.conf.bsd'
 APACHE_STARTUP_SCRIPT='/usr/local/sbin/apachectl'
 
 PORT=$2
+USERNAME=$3
 SPORT=`expr $2 + 1000`
 MYSQLPORT=`expr $2 - 1000`
 CHOWN='chown'
@@ -53,7 +72,7 @@ case $1 in
         fi
 		cat $APACHE_CONF_DIR/$APACHE_CONF | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/apache2.conf
 		cat $APACHE_CONF_DIR/ports.conf | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/ports.conf
-		cat $APACHE_CONF_DIR/sites-available/thinkcube | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" > /home/cust${PORT}/etc/apache2/sites-available/thinkcube
+		cat $APACHE_CONF_DIR/sites-available/thinkcube | sed -e "s/NNNN/$PORT/g" | sed -e "s/MMMM/$SPORT/g" | sed -e "s/XXUSERNAMEXX/$USERNAME/g "> /home/cust${PORT}/etc/apache2/sites-available/thinkcube
 		cat $APACHE_CONF_DIR/php.ini | sed -e "s/NNNN/$PORT/g" | sed -e "s/SSSS/$MYSQLPORT/g"> /home/cust${PORT}/etc/apache2/php.ini
 
 		# BSD specific

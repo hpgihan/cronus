@@ -1,33 +1,59 @@
 #!/bin/bash
 
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
 # IDP/LDAP user management
-# USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]
-# 
+# USAGE: usermgmt add EMAIL USERPASSWORD SURNAME
+#	 usermgmt delete EMAIL 
+#	 usermgmt add-domain DOMAIN
+#	 usermgmt delete-domain DOMAIN
+# 	 usermgmt change-passwd EMAIL NEWPASSWORD
+#
+# Ex: EMAIL user@mail.thinkcube.net
+#     DOMAIN mail.thinkcube.net
+#
 # Create a file called settings at the same directory level as this script
 # Example settings file entries for searchbase dc=thinkcube,dc=net
-#  with rootuser admin and root password dirtysecret.
+# with rootuser admin and root password dirtysecret.
 #
-# DC1=thinkcube
-# DC2=net
 # ROOTUSER=admin
 # LDAPPASSWD=dirtysecret
 
 DESCRIPTS=`dirname $0`
 source $DESCRIPTS/settings
 
-
-if [ ! $ROOTUSER ] || [ ! $LDAPPASSWD ] || [ ! $DC1 ] || [ ! $DC2 ] ; then
+if [ ! $ROOTUSER ] || [ ! $LDAPPASSWD ] ; then
     echo "Missing database settings. Add them in ${DESCRIPTS}/settings"
     exit 1
 fi
 
-OU=$2
-LDAPUID=$3
+EMAIL=$2
+USERPASSWORD=$3
 SN=$4
-CN=$LDAPUID
-USERPASSWORD=$5
-MAIL=${LDAPUID}@${OU}.${DC1}.${DC2}
 
+LDAPUID=${EMAIL%@*}
+DOMAIN=${EMAIL#*@}
+OU=${DOMAIN%%.*}
+TEMP=${DOMAIN#*.}
+DC1=${TEMP%.*}
+DC2=${DOMAIN##*.}
+
+CN=$LDAPUID
 SEARCHBASE=dc=${DC1},dc=${DC2}
 BINDDN=cn=${ROOTUSER},${SEARCHBASE}
 
@@ -35,13 +61,36 @@ case $1
 in
     add)
 	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nobjectClass: inetOrgPerson\nuid: ${LDAPUID}\nsn: ${SN}\ncn: ${CN}"\
-		"\nuserPassword: ${USERPASSWORD}\nmail: ${MAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
+		"\nuserPassword: ${USERPASSWORD}\nmail: ${EMAIL}" | ldapadd -w $LDAPPASSWD -D $BINDDN
 	# Whoever calls this must add a password-less user to Zimbra!
     ;;
+
     delete)
 	ldapdelete -w $LDAPPASSWD -D $BINDDN "uid=${LDAPUID},ou=${OU},${SEARCHBASE}"
     ;;
+
+    add-domain)
+	echo -e "dn: ou=${OU},${SEARCHBASE}\nobjectClass: organizationalUnit\nou: ${OU}" | ldapadd -w $LDAPPASSWD -D $BINDDN
+    ;;
+
+    delete-domain)
+	ldapdelete -w $LDAPPASSWD -D $BINDDN -r "ou=${OU},${SEARCHBASE}"
+	#Use with care. This can kill baby seals.	
+    ;;
+
+    change-passwd)
+	echo -e "dn: uid=${LDAPUID},ou=${OU},${SEARCHBASE}\nchangetype: modify\nreplace: userPassword\nuserPassword: ${USERPASSWORD}"\
+		| ldapmodify -w $LDAPPASSWD -D $BINDDN
+    ;;
+
     *)
-    echo "USAGE: usermgmt {add|delete} {OU} {LDAPUID} [{SN} {USERPASSWORD}]"
+    echo -e "USAGE: usermgmt add EMAIL USERPASSWORD SURNAME\n"\
+		"\tusermgmt delete EMAIL\n"\
+		"\tusermgmt add-domain DOMAIN\n"\
+		"\tusermgmt delete-domain DOMAIN\n"\
+		"\tusermgmt change-passwd EMAIL NEWPASSWORD\n"\
+		" Ex: EMAIL user@mail.thinkcube.net\n"\
+		"     DOMAIN mail.thinkcube.net"
+
     exit 1
 esac

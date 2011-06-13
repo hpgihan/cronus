@@ -1,5 +1,23 @@
 #!/bin/bash
-# usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME-q
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+# USAGE: disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q
 
 DESCRIPTS=`dirname $0`
 
@@ -13,7 +31,7 @@ function tenant_disable(){
     local rest_url="https://${webapp_ip}/api/tenants/action/tenant/disable"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"port\":\"'$port'\", \"token\":\"'$token'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 } 
 
 function domain_disable(){
@@ -26,7 +44,7 @@ function domain_disable(){
     local rest_url="https://${dns_ip}/api/dns/action/domain/disable"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"subdomain\":\"'${subdomain}'\", \"token\":\"'$token'\", \"webappip\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 
 }
 
@@ -38,7 +56,7 @@ function idp_user_delete(){
     local rest_url="https://${idp_dns}/api/idp/action/user/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
 # pass arguments
@@ -56,17 +74,12 @@ do
       shift 2
     ;;
 
-    -username)
-      username=$2
-      shift 2
-    ;;
-
     -q)
       queued=1
       shift 1
     ;;
     --help)
-      echo "usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME -q"
+      echo "usage disable-tenant [-domain DOMAIN|-tenant-id TENANTID] -q"
       exit
     ;;
 
@@ -82,11 +95,6 @@ if [ ! $queued ] ; then
     exit 1
 fi
 
-if [ ! $username ] ; then
-    echo "Username of Tanent should be provided'. Exiting"
-    exit 1
-fi
-
 if [ ! ${tenant_id} ] ; then
     if [ ${domain} ] ; then
         tenant_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id from ${tenant_table} where domain = '${domain}'"`
@@ -99,6 +107,14 @@ fi
 
 if [ ! ${tenant_id} ] ; then
     echo "No tenant with provided data. Exiting"
+    exit 1
+fi
+
+username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
+username=`echo ${username_row} | awk -F ' ' '{print $2}'`
+
+if [ ! $username ] ; then
+    echo "Unable to locate username of the tenant. Exiting"
     exit 1
 fi
 
@@ -132,7 +148,7 @@ port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id f
 port=`echo $port_row | awk -F ' ' '{print $2}'`
 
 if [ ! ${subdomain} ] || [ ! ${port} ] || [ ! ${webapp_ip} ] || [ ! ${infra_ip} ] ; then
-    echo "Could not find tanent with supplied data. Exiting"
+    echo "Could not find tenant with supplied data. Exiting"
     exit 1
 fi
 
@@ -148,7 +164,7 @@ fi
 
 tenant_disable ${job_id} ${port} ${webapp_ip}
 domain_disable ${job_id} ${subdomain} ${dns_ip} ${webapp_ip} ${infra_ip}
-idp_user_delete ${job_id} ${username} ${idp_dns}
+#idp_user_delete ${job_id} ${username} ${idp_dns}
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_disable}', '${job_status_new}', ${tenant_id})"
 echo "Tenant disabling queued"

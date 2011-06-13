@@ -44,7 +44,7 @@ Prerequisites
      * Always: `PDO`
      * Database driver: (`mysql`, `pgsql`, ...)
 
-What actual packages are required for the various extensions varies between different platforms and distributions.
+What actual packages are required for the various extensions varies between different cronuss and distributions.
 
 
 Download and install simpleSAMLphp

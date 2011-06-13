@@ -1,7 +1,5 @@
 #!/bin/bash
 
-dbname="platform"
-dbuser="root"
-dbpasswd="thinkcube"
+dbname="cronus"
 
 server_types="infra webapp voip mail"

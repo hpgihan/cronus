@@ -1,22 +1,26 @@
+# Configuratoin for cronus-webappc SSL VirtualHost
+
 <VirtualHost *:443>
         ServerAdmin webmaster@localhost
 
-        DocumentRoot /var/www
-        <Directory /var/www/>
+        DocumentRoot /var/www/cronus-webappc
+        <Directory /var/www/cronus-webappc/>
                 Options Indexes FollowSymLinks MultiViews
                 AllowOverride All
                 Order allow,deny
                 allow from all
         </Directory>
 
-        ErrorLog /var/log/apache2/error.log
-
         LogLevel warn
 
-        CustomLog /var/log/apache2/ssl_access.log combined
+        # Apache logs
+        ErrorLog /var/log/apache2/cronus_webappc_ssl_error.log
+        CustomLog /var/log/apache2/cronus_webappc_ssl_access.log combined
 
+        # Using SSL
         SSLEngine on
 
+        # SSL Certificate files
         SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
         SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 </VirtualHost>

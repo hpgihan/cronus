@@ -40,13 +40,23 @@
     Order Allow,Deny
     Allow from All
     </Directory>
+
+    Alias /webdav /home/custNNNN/var/www
+    
+    <Location /webdav>
+        DAV On
+        AuthType Basic
+        AuthName "webdav"
+        AuthUserFile /home/custNNNN/var/passwd.dav
+        Require user XXUSERNAMEXX
+    </Location>
     
 </VirtualHost>
 
 <VirtualHost *:NNNN>
 	ServerAdmin webmaster@localhost
 	
-	DocumentRoot /home/custNNNN/var/www/cms_website
+	DocumentRoot /home/custNNNN/var/www/website
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride All
@@ -93,5 +103,15 @@
     Order Allow,Deny
     Allow from All
     </Directory>
+
+    Alias /webdav /home/custNNNN/var/www
+    
+    <Location /webdav>
+        DAV On
+        AuthType Basic
+        AuthName "webdav"
+        AuthUserFile /home/custNNNN/var/passwd.dav
+        Require user XXUSERNAMEXX
+    </Location>
 
 </VirtualHost>

@@ -1,15 +1,30 @@
 #!/usr/bin/env python
 
-import sys, os, time, atexit, pwd
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
 from signal import SIGTERM
+import os, sys, time, atexit
 
 import queue_handler
 
 class Daemon:
 	"""
-	A generic daemon class.
-	
-	Usage: subclass the Daemon class and override the run() method
+	USAGE: subclass the Daemon class and override the run() method
 	"""
 	def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 		self.stdin = stdin
@@ -19,9 +34,7 @@ class Daemon:
 	
 	def daemonize(self):
 		"""
-		do the UNIX double-fork magic, see Stevens' "Advanced 
-		Programming in the UNIX Environment" for details (ISBN 0201563177)
-		http://www.erlenstar.demon.co.uk/unix/faq_2.html#SEC16
+		do the UNIX double-fork magic
 		"""
 		try: 
 			pid = os.fork() 
@@ -33,7 +46,6 @@ class Daemon:
 			sys.exit(1)
 	
 		# decouple from parent environment
-		#os.chdir("/") 
 		os.setsid() 
 		os.umask(0)
 
@@ -137,7 +149,6 @@ class Daemon:
 
 class TCVMDaemon(Daemon):
 	def run(self):
-		print 'came to start'
 		queue_handler.QueueHandler().start()
 	def run_standalone(self):
 		queue_handler.QueueHandler().start()
@@ -150,7 +161,6 @@ class TCVMDaemon(Daemon):
 			
 
 if __name__ == "__main__":
-	#daemon = TCVMDaemon('/tmp/tcvm_daemon.pid')
 	basedir = os.path.split(sys.argv[0])[0]
 	pid_file = os.path.join(os.getcwd(), basedir, '.tc-daemon.pid')
 	daemon = TCVMDaemon(pid_file)
@@ -169,7 +179,6 @@ if __name__ == "__main__":
 		else:
 			print "usage: %s start|stop|restart|check|-f" % sys.argv[0]
 			sys.exit(2)
-		#sys.exit(0)
 	else:
 		print "usage: %s start|stop|restart|check|-f" % sys.argv[0]
 		sys.exit(2)

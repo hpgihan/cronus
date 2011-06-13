@@ -1,5 +1,23 @@
 #!/bin/bash
-# usage delete-tenant [-domain DOMAIN|-tenant-id TENANTID] -username USERNAME -q
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+# USAGE: delete-tenant [-domain DOMAIN|-tenant-id TENANTID] -q
 
 DESCRIPTS=`dirname $0`
 
@@ -13,7 +31,7 @@ function tenant_destroy(){
     local rest_url="https://${webapp_ip}/api/tenants/action/tenant/destroy"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"port\":\"'$port'\", \"token\":\"'$token'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 
 }
 function proxy_destroy(){
@@ -24,7 +42,7 @@ function proxy_destroy(){
     local rest_url="https://${infra_ip}/api/proxy/action/vhost/destroy"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 
 }
 function domain_delete(){
@@ -37,7 +55,7 @@ function domain_delete(){
     local rest_url="https://${dns_ip}/api/dns/action/domain/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"subdomain\":\"'${subdomain}'\", \"webappip\":\"'${webapp_ip}'\", \"infraip\":\"'${infra_ip}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'dns', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
 }
 
 function idp_sp_delete(){
@@ -48,18 +66,19 @@ function idp_sp_delete(){
     local rest_url="https://${idp_dns}/api/idp/action/sp/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
 function idp_user_delete(){
     local job_ip=$1
     local username=$2
     local idp_dns=$3
+    local domain=$4
 
     local rest_url="https://${idp_dns}/api/idp/action/user/delete"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"username\":\"'${username}'\", \"token\":\"'${token}'\"}'
-    mysql -u root --password=thinkcube -D platform -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
+    local values='{\"username\":\"'${username}'@'${domain}'\", \"token\":\"'${token}'\"}'
+    mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 0)"
 }
 
 # pass arguments
@@ -117,6 +136,11 @@ fi
 username_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select username from ${user_table} where tenant_id = ${tenant_id}"`
 username=`echo ${username_row} | awk -F ' ' '{print $2}'`
 
+if [ ! $username ] ; then
+    echo "Unable to locate username of the tenant. Exiting"
+    exit 1
+fi
+
 # get DNS IP
 dns_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'dns' and remaining_capacity > 0 and server_allocation_status = 1"`
 dns_ip=`echo $dns_row | awk -F ' ' '{print $2}'`
@@ -147,7 +171,7 @@ port_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select id f
 port=`echo $port_row | awk -F ' ' '{print $2}'`
 
 if [ ! ${port} ] || [ ! ${webapp_ip} ] || [ ! ${infra_ip} ] ; then
-    echo "Could not find tanent with supplied data. Exiting"
+    echo "Could not find tenant with supplied data. Exiting"
     exit 1
 fi
 
@@ -167,7 +191,7 @@ tenant_destroy ${job_id} ${port} ${webapp_ip}
 proxy_destroy ${job_id} ${domain} ${infra_ip}
 domain_delete ${job_id} ${subdomain} ${webapp_ip} ${infra_ip} ${dns_ip}
 idp_sp_delete ${job_id} ${domain} ${idp_dns}
-idp_user_delete ${job_id} ${username} ${idp_dns}
+idp_user_delete ${job_id} ${username} ${idp_dns} ${domain}
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_destroy}', '${job_status_new}', ${tenant_id})"
 

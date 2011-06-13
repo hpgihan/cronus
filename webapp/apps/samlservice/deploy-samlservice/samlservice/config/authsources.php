@@ -15,7 +15,7 @@ $config = array(
 	'sp' => array(
 	    'saml:SP',
 		'entityID' => 'XXXDOMAINXXX',
-        'idp' => 'platform-idp',
+        'idp' => 'cronus-idp',
 		#'privatekey' => 'sp.pem',
 		#'certificate' => 'sp.crt',
 	),

@@ -1,18 +1,36 @@
 <?php
 
-function _usage() {
-	echo <<<EOT
-Usage Example: /http://localhost/api/infra/operation/modproxy/change/
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-port : 8081 is customer's webapp server port
-subdomain : customer's host part of the subdomain
-domain : full domain name.
-infraip : real ip address of the infrastructure server (my ip)
-webappip : ip address of webapp server where the customer resides
-
-Returns: JSON {status:succss|fail}
-EOT;
-}
+/*
+*
+* Usage Example: /api/proxy/action/vhost/changedomain
+*
+* passed values:
+* port :Port where tenant reside
+* subdomain : Tenants subdomain
+* domain : Tenants domain
+* infraip : Proxy server used by Tenant
+* webappip : Tenant server where Tenant reside
+*
+* Returns: JSON {status:success|fail}
+*
+*/
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");

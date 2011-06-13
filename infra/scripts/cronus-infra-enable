@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Run this script as root or with sudo
+
+# This script is for post-install for packagers. If you
+# use the install script, there is no need to run rhis.
+
+http_site='0-cronus_infra'
+https_site='0-cronus_infra-ssl'
+
+echo "Attempting to enable Apache2 modules: ssl, rewrite, headers..."
+a2enmod ssl rewrite headers
+
+echo "Attempting to enable site ${https_site}..."
+a2ensite ${https_site}
+
+echo "Attempting to enable site ${http_site}..."
+a2ensite ${http_site}
+
+echo "Attempting to reload Apache2 configurations..."
+/etc/init.d/apache2 reload

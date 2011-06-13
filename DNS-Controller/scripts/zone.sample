@@ -1,4 +1,4 @@
 zone "XXDOMAINXX" {
         type master;
-        file "/etc/bind/db.platform";
+        file "/etc/bind/db.cronus";
 };
