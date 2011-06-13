@@ -93,7 +93,7 @@ if [ ! -d ${default_docroot}/api ] ; then
 fi
 
 cd ../../scripts
-sudo copyapi
+./copyapi
 cd ..
 
 cd infra/rest
