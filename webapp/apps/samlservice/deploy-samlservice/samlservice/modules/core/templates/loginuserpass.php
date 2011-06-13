@@ -105,8 +105,8 @@ if(!empty($this->data['links'])) {
 
 
 
-echo('<h2>' . $this->t('{login:help_header}') . '</h2>');
-echo('<p>' . $this->t('{login:help_text}') . '</p>');
+//echo('<h2>' . $this->t('{login:help_header}') . '</h2>');
+//echo('<p>' . $this->t('{login:help_text}') . '</p>');
 
 $this->includeAtTemplateBase('includes/footer.php');
 ?>
