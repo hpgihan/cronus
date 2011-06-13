@@ -237,8 +237,8 @@ class JobHandler(threading.Thread):
             params = urllib.urlencode(json.loads('{"token":"' + token + '"}'))
             print 'calling job finalyze call - ' + finalyze_url
             url = urllib2.urlopen(finalyze_url, params)
-            url.close()
             res = url.read()
+            url.close()
             print 'Result - ' + res
         except IOError:
             logger_activity.error('[' + now.strftime("%Y-%m-%d %H:%M") + '] Job ' + str(self.job.job_id) + ' finalyzing call failed.')
