@@ -32,7 +32,7 @@
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
 
-$retval = $function(param('port'), param('diskquota'));
+$retval = $function(param('port'), param('username'), param('password'), param('diskquota'));
 
 if($retval) {
 	print json_encode(array('status'=>'success'));

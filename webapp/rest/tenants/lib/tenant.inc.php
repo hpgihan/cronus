@@ -23,7 +23,7 @@
 *
 */
 
-function create ($port, $diskquota) {
+function create ($port, $username, $password, $diskquota) {
 	global $shell_path;
 	$retval = true;
 	// Validate input
@@ -31,7 +31,7 @@ function create ($port, $diskquota) {
         $retval = false;
 
 	if ($retval) {
-		exec("cd $shell_path && sudo ./cronusdeploy create $port $diskquota", $output, $retval1);
+		exec("cd $shell_path && sudo ./cronusdeploy create $port $username $password $diskquota", $output, $retval1);
         $retval = !$retval1;
 	}
 	
