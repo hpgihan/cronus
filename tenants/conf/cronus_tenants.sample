@@ -1,12 +1,12 @@
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 
-	DocumentRoot /var/www/cronus-webappc
+	DocumentRoot /var/www/cronus-tenants
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory /var/www/cronus-webappc/>
+	<Directory /var/www/cronus-tenants/>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny
@@ -16,6 +16,6 @@
 	LogLevel warn
 
 	# Apache logs
-	ErrorLog /var/log/apache2/cronus_webappc_error.log
-	CustomLog /var/log/apache2/cronus_webappc_access.log combined
+	ErrorLog /var/log/apache2/cronus_tenants_error.log
+	CustomLog /var/log/apache2/cronus_tenants_access.log combined
 </VirtualHost>

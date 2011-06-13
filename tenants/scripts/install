@@ -24,11 +24,11 @@
 DESCRIPTS=`dirname $0`
 
 available_site_path='/etc/apache2/sites-available'
-default_docroot='/var/www/cronus-webappc'
-http_tmpl='../conf/cronus_webappc.sample'
-https_tmpl='../conf/cronus_webappc-ssl.sample'
-http_site='0-cronus_webappc'
-https_site='0-cronus_webappc-ssl'
+default_docroot='/var/www/cronus-tenants'
+http_tmpl='../conf/cronus_tenants.sample'
+https_tmpl='../conf/cronus_tenants-ssl.sample'
+http_site='0-cronus_tenants'
+https_site='0-cronus_tenants-ssl'
 https_conf=${available_site_path}/${https_site}
 http_conf=${available_site_path}/${http_site}
 
@@ -99,7 +99,7 @@ cd ../../scripts
 ./copyapi
 cd ..
 
-cd webapp/rest
+cd tenants/rest
 sudo cp -r tenants ${doc_root}/api/
 
 echo "Copying Startup script; {tenants_start} to /etc/init.d"

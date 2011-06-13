@@ -5,8 +5,8 @@
 # This script is for post-install for packagers. If you
 # use the install script, there is no need to run rhis.
 
-http_site='0-cronus_webappc'
-https_site='0-cronus_webappc-ssl'
+http_site='0-cronus_tenants'
+https_site='0-cronus_tenants-ssl'
 
 echo "Attempting to enable Apache2 modules: ssl, rewrite, headers..."
 a2enmod ssl rewrite headers
