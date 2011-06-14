@@ -106,7 +106,7 @@ case $1 in
 
 			# Start mysql
 			mysqld_multi start $ID 
-			sleep 30	
+			sleep 60	
 			# Reset mysql root to same as user password
 			mysqladmin -P $MYSQL_PORT --protocol tcp -u root password $DBPASS
 		
