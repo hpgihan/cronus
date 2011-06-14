@@ -26,6 +26,13 @@ if ($this->data['errorcode'] !== NULL) {
 
 	<p><?php echo $this->t('{login:user_pass_text}'); ?></p>
 
+<?php
+// FIXME Probably bad, instant hack. Must get rid of it.
+$temp=explode('=',$_GET['AuthState'],2);
+$domain=explode('&',$temp[1]);
+?>
+        <p><?php echo "You should enter your username complete with the domain. Ex: joe@" . $domain[0]; ?></p>
+
 	<form action="?" method="post" name="f">
 	<table>
 		<tr>
