@@ -31,7 +31,7 @@ if ($this->data['errorcode'] !== NULL) {
 $temp=explode('=',$_GET['AuthState'],2);
 $domain=explode('&',$temp[1]);
 ?>
-        <p><?php echo "You should enter your username complete with the domain. Ex: joe@" . $domain[0]; ?></p>
+	<p>You should enter your username complete with the domain. Ex: joe@<?php echo  htmlspecialchars($domain[0]); ?></p>
 
 	<form action="?" method="post" name="f">
 	<table>
