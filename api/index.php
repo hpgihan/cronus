@@ -19,6 +19,7 @@
 
 
 // Controller of the protocol
+include('inc/config.inc.php');
 include('inc/library.inc.php');
 
 $auth = $_POST["token"];

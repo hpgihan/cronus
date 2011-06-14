@@ -33,4 +33,20 @@ fi
 
 sudo cp -r ../api ${doc_root}
 
+echo "Replacing Database settings in API"
+
+if [  ! $username ] || [ ! $password ] ; then
+    echo "Enter mysql username"
+    read username
+    echo "Enter mysql password"
+    read password
+fi
+
+cd ${doc_root}/api/inc/
+
+sudo mv config.inc.php config.inc.php.tmp
+sudo cat config.inc.php.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSiWDXX/${password}/g" > config.inc.php
+sudo rm config.inc.php.tmp
+
+cd -
 echo "API successfully installed"

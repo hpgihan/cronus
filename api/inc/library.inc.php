@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+/*
+*
+* Helper Library functions for the api
+*
+*/
+
 // Insert value for key to param
 function _insert_parameters($k, $v) {
     global $arg;
@@ -84,3 +90,25 @@ function check_integrity($auth){
 	}
 
 }
+
+// Database helper library
+function db_connect() {
+    $dbh = null;
+    global $dbdsn;
+    global $dbuser;
+    global $dbpasswd;
+  
+    if ($dbdsn) {
+  
+        try {
+            if ($dbuser && $dbpasswd)
+                $dbh = new PDO($dbdsn, $dbuser, $dbpasswd);
+            else
+                $dbh = new PDO($dbdsn);
+            return $dbh;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    return false;
+ }

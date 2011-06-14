@@ -169,11 +169,13 @@ sudo cp -r idp /var
 # Install API Controller
 cd ../../scripts
 ./copyapi
+cd ..
 
-# Install DNS, IDP REST API's
-cd ../DNS-Controller/rest
+# Install DNS, IDP, UTILS REST API's
+cd DNS-Controller/rest
 sudo cp -r dns ${doc_root}/api/
 sudo cp -r idp ${doc_root}/api/
+sudo cp -r utils ${doc_root}/api/
 
 # Copy cronus_restart script to /etc/init.d and updating
 cd ../scripts

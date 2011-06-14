@@ -19,20 +19,9 @@
 
 /*
 *
-* Usage Example: /api/utils/action/job/update
-*
-* passed values:
-* jobid : ID of Job to be updated
-* status : success, fail status of job
+* Where to locate helper shell files
 *
 */
 
-include ("$module/lib/$action_on.inc.php");
-include ("$module/$action_on/config.php");
-$retval = $function(param('jobid'), param('status'));
-
-if($retval > 0) {
-	print json_encode(array('status'=>'success'));
-} else {
-	print json_encode(array('status'=>'fail'));
-}
+$shell_path="/opt/cronus/shell/";
+?>

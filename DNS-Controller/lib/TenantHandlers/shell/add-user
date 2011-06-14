@@ -32,10 +32,12 @@ function add_tenant_deployment()
     local subdomain=$4
     local diskquota=$5
     local webapp_ip=$6
+    local username=$7
+    local password=$8
 
     local rest_url="https://${webapp_ip}/api/tenants/action/tenant/create"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
-    local values='{\"port\":\"'$port'\", \"diskquota\":\"'$diskquota'\", \"token\":\"'$token'\"}'
+    local values='{\"port\":\"'$port'\", \"diskquota\":\"'$diskquota'\", \"username\":\"'$username'\", \"password\":\"'$password'\", \"token\":\"'$token'\"}'
     mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'webapp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
     #echo "insert into ${deployment_table} (job_id, category, rest_url, rest_array, status, priority_id) values ($job_id, 'webapp', '$rest_url', '$values', 0, 1)"
 }
@@ -319,7 +321,7 @@ else
     job_id=1
 fi
 
-add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip
+add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip $username $password
 add_sp_deployment $job_id $port $domain $idp_dns $IDP_cert $webapp_ip
 add_vhost_deployment $job_id $port $domain $webapp_ip $infra_ip
 add_dns_deployment $job_id $subdomain $dns_ip $webapp_ip $infra_ip

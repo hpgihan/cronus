@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+#
+# Installation Script for Tenant Server
+#
+
+DESCRIPTS=`dirname $0`
+
+available_site_path='/etc/apache2/sites-available'
+default_docroot='/var/www/cronus-tenants'
+http_tmpl='../conf/cronus_tenants.sample'
+https_tmpl='../conf/cronus_tenants-ssl.sample'
+http_site='0-cronus_tenants'
+https_site='0-cronus_tenants-ssl'
+https_conf=${available_site_path}/${https_site}
+http_conf=${available_site_path}/${http_site}
+
+echo "Attempting to create ${https_conf}"
+cp ${https_tmpl} ${https_conf}
+echo "Attempting to create ${http_conf}"
+cp ${http_tmpl} ${http_conf}
+echo "Attempting to enable ${https_conf}"
+a2ensite ${https_site}
+echo "Attempting to enable ${http_conf}"
+a2ensite ${http_site}
+echo "Attempting to enable Apache2 modules: SSL, Rewrite, Headers"
+a2enmod ssl rewrite headers
+
+function prompt_reinstall(){
+    echo "Cronus already installed at /opt/cronus. Reinstall?(yes|no)"
+    read answer
+    case $answer
+    in
+        yes)
+        return 0
+        ;;
+        y)
+        return 0
+        ;;
+        no)
+        return 1
+        ;;
+        n)
+        return 1
+        ;;
+        *)
+        prompt_reinstall
+    esac
+}
+
+# If cronus is already installed; prompt for re-install
+if [ -d /opt/cronus/ ] ; then
+    if !(prompt_reinstall); then
+        exit 0
+    fi
+fi
+
+echo "Creating directory /opt/cronus"
+echo "Copying required scripts to /opt/cronus/shell"
+if [ ! -d /opt/cronus/shell ] ; then
+    mkdir -p /opt/cronus/shell
+fi
+
+cd ../apps
+sudo cp -r * /opt/cronus/shell
+
+cd ../shell
+sudo cp -r * /opt/cronus/shell
+
+echo "Enter document root of your webserver"
+read doc_root
+echo "Attempting to write new Apache2 configuration files"
+sed -e "s:$default_docroot:$doc_root:g" ${http_tmpl} > ${http_conf}
+sed -e "s:$default_docroot:$doc_root:g" ${https_tmpl} > ${https_conf}
+
+echo "Copying REST api to ${doc_root}/api"
+if [ ! -d ${default_docroot}/api ] ; then
+    mkdir -p ${doc_root}/api
+fi
+
+cd ../../scripts
+./copyapi
+cd ..
+
+cd tenants/rest
+sudo cp -r tenants ${doc_root}/api/
+
+echo "Copying Startup script; {tenants_start} to /etc/init.d"
+cd ../scripts
+sudo cp tenants_start /etc/init.d
+sudo update-rc.d tenants_start defaults
+
+echo "Attempting to reload Apache2 configuration"
+/etc/init.d/apache2 reload
+
+echo "Tenants Server successfully installed. Sample IDP  server certificate data is added to /opt/cronus/shell/samlservice/deploy-samlservice/samlservice/metadata/saml20-idp-remote.php. Replace it with your own server certificate data in production environment"

@@ -19,20 +19,25 @@
 
 /*
 *
-* Usage Example: /api/utils/action/job/update
+* Returns space used by a tenant
+*
+* Usage Example: /api/tenants/query/tenant/usedspace
 *
 * passed values:
-* jobid : ID of Job to be updated
-* status : success, fail status of job
+* port : Port assigned to tenant
+*
+* Returns: JSON {status:success|fail}
 *
 */
 
 include ("$module/lib/$action_on.inc.php");
 include ("$module/$action_on/config.php");
-$retval = $function(param('jobid'), param('status'));
 
-if($retval > 0) {
-	print json_encode(array('status'=>'success'));
+$retval = $function(param('port'));
+
+if($retval) {
+	print json_encode($retval);
 } else {
 	print json_encode(array('status'=>'fail'));
 }
+

@@ -1,0 +1,311 @@
+#!/bin/bash
+
+# Cronus is a Multi-Tenant virtualized PaaS solution developed by 
+# Thinkcube Systems (Pvt) Ltd. Copyright (C) 2011 Thinkcube Systems (Pvt) Ltd.
+#
+# This file is part of Cronus.
+#
+# Cronus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3  
+# as published by the Free Software Foundation.
+#
+# Cronus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Cronus. If not; see <http://www.gnu.org/licenses/>.
+
+#
+# USAGE : cronusdeploy {create} {PORT} {USERNAME} {PASSWORD} {DISKQUOTA}
+# USAGE : cronusdeploy {destroy} {PORT}
+#
+
+PORT=$2
+USERNAME=$3
+PASSWORD=$4
+DISKQUOTA=$5
+DEPSCRIPTS=`dirname $0`
+ID=`expr $PORT - 8080`
+. $DEPSCRIPTS/shell.inc.sh
+
+for arg in `echo $*`
+do
+	if echo -n $arg|grep -q '=' ; then
+		var=`echo $arg|sed -e "s/=.*$//"`
+		val=`echo $arg|sed -e "s/^.*=//"`
+	
+		case $var in 
+			username)
+				USERNAME=$val
+				;;
+			password)
+				PASSWORD=$val
+				;;
+			domain)
+				DOMAIN=$val
+				;;
+			subdomain)
+				SUBDOMAIN=$val
+				;;
+			diskquota)
+				DISKQUOTA=$val
+				;;
+			idphost)
+				IDPHOST=$val
+				;;
+			idpcert)
+				IDPCERT=$val
+				;;
+			mail_ip)
+				MAIL_IP=$val
+				;;
+			mail_domain)
+				MAIL_DOMAIN=$val
+				;;
+			voip_ip)
+				VOIP_IP=$val
+				;;
+			voip_domain)
+				VOIP_DOMAIN=$val
+				;;
+			voip_prefix)
+				VOIP_PREFIX=$val
+				;;
+			infra_ip)
+				INFRA_IP=$val
+				;;
+			infra_domain)
+				INFRA_DOMAIN=$val
+				;;
+			licenses)
+				LICENSES=$val
+				;;
+			fname)
+				FNAME=$val
+				;;
+			lname)
+				LNAME=$val
+				;;
+		esac
+	fi
+done
+
+FEATURES=`echo -n $*|sed -e "s/.*=[^=][^ ]*[ ]//"`
+case $1 in
+	create)
+
+	# check file system exist
+	if [ -d /home/cust${PORT} ];then
+		echo "Customer already exist !"
+                exit 1
+	fi
+	
+	# Virtual hosting specific code
+	if [[ $SERVER == "basic" ]]; then
+		mkdir /home/cust${PORT};
+
+	# Multi-tenant specific code 
+	else	
+		if [[ $OS == "BSD" ]]; then
+			# Create ZFS file system
+			/sbin/zfs create ${FILE_SYS_HOME}/cust$PORT;
+			/sbin/zfs set quota=${DISKQUOTA}g ${FILE_SYS_HOME}/cust$PORT;
+
+			# create user
+			sleep 5
+			if ! grep -q "cust$PORT" /etc/passwd
+			then
+				${GROUPADD} cust$PORT
+				${USERADD} cust$PORT -c 'TC App user' -d /home/cust$PORT -g cust$PORT -G ${SUDOGROUP} -s /sbin/nologin
+				${CHOWN} -R $AUTH_USER:$AUTH_USER /home/cust$PORT
+			fi
+
+		else # If OS is LINUX
+			# Create LVM file system
+			echo -e "\n-------------------------------\n`date`\tStart deploying cust${PORT}\n"
+			#create LV
+			echo Creating customer space in hdd...
+			lvcreate -L ${DISKQUOTA}G -n cust${PORT} ${VIRTUAL_GROUP}
+			#sleep 10
+			#format LV using ext4
+			mkfs.ext4 -m 0 /dev/${VIRTUAL_GROUP}/cust${PORT}
+			#sleep 10
+
+			#create mount point
+			mkdir /home/cust${PORT}
+
+			# create user
+			sleep 5
+			if ! grep -q "cust$PORT" /etc/passwd
+			then
+				${GROUPADD} cust$PORT
+				${USERADD} cust$PORT -c 'TC App user' -d /home/cust$PORT -g cust$PORT -G ${SUDOGROUP} -s /sbin/nologin
+				${CHOWN} -R $AUTH_USER:$AUTH_USER /home/cust$PORT
+			fi
+
+			#change ownership
+			chown -R $AUTH_USER /home/cust${PORT}
+
+			#mount
+			mount /dev/${VIRTUAL_GROUP}/cust${PORT} /home/cust${PORT}
+			#put entry in fstab for auto mount in reboot
+			echo /dev/${VIRTUAL_GROUP}/cust${PORT} /home/cust${PORT} ext4 defaults 0 0 >> /etc/fstab
+
+		fi
+
+
+	fi
+
+	# do apache virtualization
+	${DEPSCRIPTS}/apache2/apache2 create $PORT $USERNAME $*
+
+	# deploy webdav
+	${DEPSCRIPTS}/webdav add $PORT $USERNAME $PASSWORD $*
+
+	# do mysql virtualization
+	${DEPSCRIPTS}/mysql/mysql create $PORT
+
+	;;
+
+	destroy)
+
+	# Check whether the customer exists
+	if [ ! -d /home/cust${PORT} ];then
+			echo "There is no customer on port ${PORT}";
+	else
+	# If the customer exists
+		if [[ $SERVER == 'basic' ]]; # Only in LINUX
+		then
+			${DEPSCRIPTS}/mysql destroy $PORT;
+			${DEPSCRIPTS}/apache2 destroy $PORT;
+			rm -rf /home/cust${PORT};
+
+		else # If hosting type is multi-tenant
+			if [[ $OS == "LINUX" ]]; # If linux multi-tenant
+			then
+				echo -e "\n-------------------------------\n`date`\tStart destroying cust${PORT}\n"
+				echo Stopping mysql instant, apache instant and job processing daemon...
+				DBPASS=`cat "/home/cust${PORT}/etc/dbuserpassword.txt"`
+				mysqladmin -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u cust${PORT} --password=$DBPASS shutdown
+				${APACHECOMMAND} -f /home/cust${PORT}/etc/apache2/apache2.conf -k stop
+				/home/cust${PORT}/etc/daemon/daemon.py stop
+				sleep 5
+				echo Destroying filesystem...
+				# unmount filesystem
+				umount -f /home/cust${PORT}
+				# delete user foloder
+				rm -fr /home/cust${PORT}
+				# delete logical volume
+				lvremove -f /dev/${VIRTUAL_GROUP}/cust${PORT}
+				#remove entry from fstab
+				echo Removing fstab entry...
+				cat /etc/fstab | sed "/cust${PORT}/d" > /tmp/fstab.tmp; mv /tmp/fstab.tmp /etc/fstab
+
+			else # BSD multi-tenant
+				DBPASS=`cat "/home/cust${PORT}/etc/dbuserpassword.txt"`
+				mysqladmin -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u cust${PORT} --password=$DBPASS shutdown
+				sleep 10
+				${APACHECOMMAND} -f /home/cust${PORT}/etc/apache2/apache2.conf -k stop
+				/sbin/zfs destroy -f -r ${FILE_SYS_HOME}/cust$PORT
+			fi
+
+			# delete system user
+			echo Deleting system user...
+			${USERDEL} cust$PORT
+		fi
+
+	# If deleting customer is currently disabled, remove it from disabled customer list
+	if [ -f /etc/cronus/disabled_customers/${PORT} ];then
+		rm /etc/cronus/disabled_customers/${PORT}
+	fi
+	 	
+	if grep -q "mysqld$ID" $MYSQL_CONF;then
+		# Remove block
+		sed -i -e "/mysqld$ID/,/end/ d" $MYSQL_CONF
+	fi
+	echo -e "\n-------------------------------\n`date`\tSuccessfully destroyed cust${PORT}"		
+
+    fi
+
+	;;
+	delete)
+	# do features related deployment
+        FEATURES=`echo $* | sed -e "s/.*${PORT}[^ ]*[ ]//g"`
+        for F in $FEATURES
+        do
+                # run feature specific scripts
+                ${DEPSCRIPTS}/${F} destroy $PORT
+        done
+	
+
+
+	;;
+	add)
+		for F in $FEATURES
+	    do
+    	   	if [ $F != "takecontrol" ];then
+       	    	 # run feature specific scripts
+       	    	 ${DEPSCRIPTS}/${F} $1 $PORT $*
+     		 fi
+    	done
+
+
+	;;
+	resizequota)
+		# resize diskquota		
+		/sbin/zfs set quota=${DISKQUOTA}g ${FILE_SYS_HOME}/cust$PORT
+
+		#resize mail quota
+	;;
+	disable)
+		# Check whether the customer exists
+		if [ ! -d /home/cust${PORT} ];
+		then
+			echo "There is no customer on port ${PORT}";
+		else # If the customer exists
+			# Touch the disabled_customers file regardless of the deployment type
+			if [ ! -d /etc/cronus/disabled_customers ];then
+				mkdir -p /etc/cronus/disabled_customers
+			fi
+			touch /etc/cronus/disabled_customers/${PORT}
+	
+			if [[ $SERVER == 'basic' ]];
+			then
+				${DEPSCRIPTS}/mysql disable $PORT
+				${DEPSCRIPTS}/apache2 disable $PORT
+			else #If deployment type is multi
+			    	DBPASS=`cat "/home/cust${PORT}/etc/dbuserpassword.txt"`
+			    	mysqladmin -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u cust${PORT} --password=$DBPASS shutdown
+			    	${APACHECOMMAND} -f /home/cust${PORT}/etc/apache2/apache2.conf -k stop
+			fi
+		fi
+	;;
+	enable)
+		# Check whether the customer exists
+		if [ ! -d /home/cust${PORT} ];
+		then
+			echo "There is no customer on port ${PORT}";
+		else
+			rm /etc/cronus/disabled_customers/${PORT}
+			if [[ $SERVER == 'basic' ]];
+			then
+				${DEPSCRIPTS}/mysql enable $PORT
+				${DEPSCRIPTS}/apache2 enable $PORT
+			else
+				DBPASS=`cat "/home/cust${PORT}/etc/dbuserpassword.txt"`
+				#mysqladmin -S /home/cust${PORT}/var/lib/mysql/mysql.sock -u cust${PORT} --password=$DBPASS shutdown
+				mysqld_multi start ${ID}
+				sleep 5
+				${APACHECOMMAND} -f /home/cust${PORT}/etc/apache2/apache2.conf -k start
+		 		sleep 5
+				echo "User will be enabled back in after 10 minutes"
+			fi
+		fi
+	;;
+	*)
+                echo "Usage: webappdeploy {create} {PORT} {USERNAME} {PASSWORD} {featues *}"
+                exit 1
+    ;;
+esac

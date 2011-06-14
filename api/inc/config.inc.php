@@ -19,20 +19,12 @@
 
 /*
 *
-* Usage Example: /api/utils/action/job/update
-*
-* passed values:
-* jobid : ID of Job to be updated
-* status : success, fail status of job
+* DB Settings
 *
 */
 
-include ("$module/lib/$action_on.inc.php");
-include ("$module/$action_on/config.php");
-$retval = $function(param('jobid'), param('status'));
+$dbdsn = 'mysql:host=localhost;dbname=cronus';
+$dbuser = 'XXDBUSERXX';
+$dbpasswd = 'XXDBPASSWDXX';
 
-if($retval > 0) {
-	print json_encode(array('status'=>'success'));
-} else {
-	print json_encode(array('status'=>'fail'));
-}
+?>
