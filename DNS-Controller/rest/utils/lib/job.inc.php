@@ -40,7 +40,7 @@ function update($job_id, $job_status){
 	$tenant_id = $rows[0]['tenant_id'];
 
 	if($job_type == '1'){
-		if($status == '1'){
+		if($status == '3'){
 			$change_state_to ='2';
 
 		}
@@ -52,7 +52,7 @@ function update($job_id, $job_status){
 
         }
         else if($job_type == '3'){
-		if($status == '1'){
+		if($status == '3'){
 			$change_state_to ='2';
 		}
 		else{
@@ -60,7 +60,7 @@ function update($job_id, $job_status){
 		}
         }
         else if($job_type == '4'){
-		if($status == '1'){
+		if($status == '3'){
 			$change_state_to ='1';
 		}
 		else{
@@ -68,13 +68,16 @@ function update($job_id, $job_status){
 		}
         }
         else if($job_type == '5'){
-		if($status == '1'){
+		if($status == '3'){
 			$change_state_to ='0';
 		}
         }
-	$sql = "UPDATE tenants SET status = $change_state_to WHERE id = $tenant_id";
-	$st = $dbh->prepare($sql);
-	$rt = $st->execute();
+
+	if($change_state_to!=''){
+	        $sql = "UPDATE tenants SET status = $change_state_to WHERE id = $tenant_id";
+        	$st = $dbh->prepare($sql);
+        	$rt = $st->execute();
+	}
 return $rt;
 }
 ?>
