@@ -18,7 +18,7 @@
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
 #
-# Apache 2 virtualize
+# Apache 2 virtualization
 # Starts multiple instances of Apache2 using different ports.
 # https port = http port + 1000
 # USAGE : apache2 {create|} {PORT} {USERNAME}
@@ -28,13 +28,21 @@ PROGRAM="apache2"
 DEPSCRIPTS=`dirname $0`
 APACHE_CONF_DIR=${DEPSCRIPTS}/deploy-${PROGRAM}/etc/apache2
 
-### Linux hosting
-#APACHE_CONF='apache2.conf.linux'
-#APACHE_STARTUP_SCRIPT='/usr/sbin/apache2ctl'
+if [ `uname | tr -s '[:lower:]' '[:upper:]'` == "LINUX" ] ; then
+    OS="LINUX"
+else
+    OS="BSD"
+fi
 
+### Linux hosting
+if [ $OS == "LINUX" ] ; then
+    APACHE_CONF='apache2.conf.linux'
+    APACHE_STARTUP_SCRIPT='/usr/sbin/apache2ctl'
 ### BSD hosting
-APACHE_CONF='apache2.conf.bsd'
-APACHE_STARTUP_SCRIPT='/usr/local/sbin/apachectl'
+else
+    APACHE_CONF='apache2.conf.bsd'
+    APACHE_STARTUP_SCRIPT='/usr/local/sbin/apachectl'
+fi
 
 PORT=$2
 USERNAME=$3

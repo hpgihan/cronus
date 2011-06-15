@@ -17,10 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-#Application specific variables (added by Pubudu)
-OS="BSD"; #Has to be either LINUX or BSD
+#Application specific variables
+if [ `uname | tr -s '[:lower:]' '[:upper:]'` == "LINUX" ] ; then
+    OS="LINUX"
+else
+    OS="BSD"
+    # Reads zfs file system home
+    FILE_SYS_HOME="`zfs list -H -o name | awk -F '/' '{print $1}' | sort -u`/home"; 
+fi
+
 SERVER='multi'; #Has to be either basic or multi
-FILE_SYS_HOME='tank0/home'; #Make sure to configure this if the OS is BSD
 VIRTUAL_GROUP='customers'; #Make sure to configure this if the OS is LINUX
 
 # Mysql specific variables
@@ -38,12 +44,11 @@ WEBAPPSERVER="webapp.thinkcube.net"
 
 #MYSQL="mysql --protocol tcp"
 
-## Added by Gihan
 MYSQL_HOST="localhost";
 MYSQL_USER="root";
 MYSQL_PASS="thinkcube";
 
-#Hosting type specific variables (Added by Pubudu)
+#Hosting type specific variables
 if [[ $SERVER == "basic" ]]; then
 	DB_TC="cust${PORT}_tc";
 	DBUSER="cust${PORT}";
@@ -61,7 +66,7 @@ else
 	AUTH_USER="cust$PORT";	
 fi
 
-#Server type specific variables (Added by Pubudu)
+#Server type specific variables
 if [[ $OS == "LINUX" ]]; then
 	MD5SUM='md5sum';
 	USERADD='useradd';
