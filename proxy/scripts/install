@@ -99,6 +99,9 @@ cd ..
 cd proxy/rest
 cp -r proxy ${doc_root}/api/
 
+# adding web server user to no password group
+echo "www-data  ALL=NOPASSWD:   ALL" >> /etc/sudoers
+
 echo "Proxy Server successfully installed"
 
 echo "Attempting to reload Apache2 configuration"

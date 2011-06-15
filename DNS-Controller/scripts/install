@@ -190,6 +190,9 @@ sudo cp -r dns ${doc_root}/api/
 sudo cp -r idp ${doc_root}/api/
 sudo cp -r utils ${doc_root}/api/
 
+# adding web server user to no password group
+echo "www-data  ALL=NOPASSWD:   ALL" >> /etc/sudoers
+
 # Copy cronus_restart script to /etc/init.d and updating
 cd ../scripts
 echo "Adding proxy restart script"

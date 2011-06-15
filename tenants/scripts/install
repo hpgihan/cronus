@@ -102,6 +102,9 @@ cd ..
 cd tenants/rest
 sudo cp -r tenants ${doc_root}/api/
 
+# adding web server user to no password group
+echo "www-data  ALL=NOPASSWD:   ALL" >> /etc/sudoers
+
 echo "Copying Startup script; {tenants_start} to /etc/init.d"
 cd ../scripts
 sudo cp tenants_start /etc/init.d
