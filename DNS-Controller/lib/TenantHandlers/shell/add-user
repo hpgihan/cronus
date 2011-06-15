@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
+#
 # USAGE: add-user -domain DOMAIN -username USERNAME -password PASSWORD -disk-quota DISKQUOTA -q
+#
 
 DESCRIPTS=`dirname $0`
 
@@ -94,9 +96,9 @@ function add_idp_sp_deployment()
 {
     local job_id=$1
     local domain=$2
-    local idp_dns=$3
+    local idp_ip=$3
 
-    local rest_url="https://${idp_dns}/api/idp/action/sp/add"
+    local rest_url="https://${idp_ip}/api/idp/action/sp/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"domain\":\"'${domain}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
@@ -110,8 +112,9 @@ function add_idp_user_deployment()
     local password=$4
     local subdomain=$5
     local lastname=$6
+    local idp_ip=$7
 
-    local rest_url="https://${idp_dns}/api/idp/action/user/add"
+    local rest_url="https://${idp_ip}/api/idp/action/user/add"
     local token=`echo -n "${rest_key}_${rest_url}" | md5sum | sed s/" -"//g`
     local values='{\"username\":\"'${username}'@'${domain}'\", \"password\":\"'${password}'\", \"lastname\":\"'${lastname}'\", \"token\":\"'${token}'\"}'
     mysql -u root --password=thinkcube -D cronus -e "insert into deployment_queue (job_id, category, rest_url, rest_array, status, priority_id) values (${job_id}, 'idp', '${rest_url}', '${values}', ${deployment_status_new}, 1)"
@@ -154,12 +157,13 @@ do
       shift 1
     ;;
     --help)
-      echo "usage add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -firstname FIRSTNAME -lastname LASTNAME -disk-quota DISKQUOTA -q"
+      echo "USAGE add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -firstname FIRSTNAME -lastname LASTNAME -disk-quota DISKQUOTA -q"
       exit
     ;;
 
     *)
       echo "Invalid option $1"
+      echo "USAGE add-tenant -domain DOMAIN -username USERNAME -password PASSWORD -firstname FIRSTNAME -lastname LASTNAME -disk-quota DISKQUOTA -q"
       exit 1
   esac
 done
@@ -215,6 +219,15 @@ idp_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select serve
 idp_dns=`echo $idp_row | awk -F ' ' '{print $2}'`
 
 if [ ! $idp_dns ] ; then
+    echo "No IDP allocated. Exiting"
+    exit 1
+fi
+
+# get IDP IP
+idp_ip_row=`mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "select server_ip from ${server_table} where server_type = 'idp' and remaining_capacity > 0 and server_allocation_status = 1"`
+idp_ip=`echo $idp_ip_row | awk -F ' ' '{print $2}'`
+
+if [ ! $idp_ip ] ; then
     echo "No IDP allocated. Exiting"
     exit 1
 fi
@@ -325,8 +338,8 @@ add_tenant_deployment $job_id $port $domain $subdomain $diskquota $webapp_ip $us
 add_sp_deployment $job_id $port $domain $idp_dns $IDP_cert $webapp_ip
 add_vhost_deployment $job_id $port $domain $webapp_ip $infra_ip
 add_dns_deployment $job_id $subdomain $dns_ip $webapp_ip $infra_ip
-add_idp_sp_deployment $job_id $domain $idp_dns
-add_idp_user_deployment $job_id $domain $username $password $subdomain $lastname
+add_idp_sp_deployment $job_id $domain $idp_ip
+add_idp_user_deployment $job_id $domain $username $password $subdomain $lastname $idp_ip
 
 mysql -u ${dbuser} --password=${dbpasswd} -D ${dbname} -e "insert into ${job_table} (id, job_type, status, tenant_id) values ('${job_id}', '${job_type_tenant_deploy}', '${job_status_new}', ${tenant_id})"
 
