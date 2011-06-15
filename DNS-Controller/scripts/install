@@ -140,9 +140,10 @@ read ldappassword
 
 cd ..
 
+echo "Replacing database settings in Tenant Handlers"
 cd /opt/cronus/control/TenantHandlers/shell
 sudo cat settings > settings.tmp
-sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g"  | sed -e "s/XXDC1XX/${dc1}/g" | sed -e "s/XXDC2XX/${dc2}/g" | sed -e "s/XXLDAPUIDXX/${ldapusername}/g" | sed -e "s/XXLDAPPASSWDXX/${ldappassword}/g" > settings
+sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > settings
 sudo rm settings.tmp
 
 cd -
@@ -158,6 +159,14 @@ sudo mv server_monitor/config.py server_monitor/config.py.tmp
 sudo cat server_monitor/config.py.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g" > server_monitor/config.py
 sudo rm server_monitor/config.py.tmp
 sudo python server_monitor/server_poller.py start
+
+cd -
+
+echo "Replacing database settings in shell helper settings file"
+cd /opt/cronus/shell
+sudo cat settings > settings.tmp
+sudo cat settings.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSXX/${password}/g"  | sed -e "s/XXDC1XX/${dc1}/g" | sed -e "s/XXDC2XX/${dc2}/g" | sed -e "s/XXLDAPUIDXX/${ldapusername}/g" | sed -e "s/XXLDAPPASSWDXX/${ldappassword}/g" > settings
+sudo rm settings.tmp
 
 cd -
 
