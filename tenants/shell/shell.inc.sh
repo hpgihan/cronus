@@ -45,8 +45,8 @@ WEBAPPSERVER="webapp.thinkcube.net"
 #MYSQL="mysql --protocol tcp"
 
 MYSQL_HOST="localhost";
-MYSQL_USER="root";
-MYSQL_PASS="thinkcube";
+MYSQL_USER="XXDBUSERXX";
+MYSQL_PASS="XXDBPASSWDXX";
 
 #Hosting type specific variables
 if [[ $SERVER == "basic" ]]; then

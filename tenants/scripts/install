@@ -84,6 +84,19 @@ sudo cp -r * /opt/cronus/shell
 cd ../shell
 sudo cp -r * /opt/cronus/shell
 
+# Replace DBSetting in shell helper files
+echo "Enter mysql username"
+read username
+echo "Enter mysql password"
+read password
+
+cd /opt/cronus/shell
+sudo cat shell.inc.sh > shell.inc.sh.tmp
+sudo cat shell.inc.sh.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSWDXX/${password}/g" > shell.inc.sh
+sudo rm shell.inc.sh.tmp
+
+cd - 
+
 echo "Enter document root of your webserver"
 read doc_root
 echo "Attempting to write new Apache2 configuration files"
@@ -96,7 +109,7 @@ if [ ! -d ${default_docroot}/api ] ; then
 fi
 
 cd ../../scripts
-./copyapi "" "" ${doc_root}
+./copyapi ${username} ${password} ${doc_root}
 cd ..
 
 cd tenants/rest
