@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Cronus. If not; see <http://www.gnu.org/licenses/>.
 
-# USAGE: add-server -type [infra|webapp|dns|idp] -ip IPADDRESS -dns DOMIANNAME
+#
+# USAGE: add-server -type [proxy|tenant|dns|idp] -ip IPADDRESS -dns DOMIANNAME
+#
 
 DESCRIPTS=`dirname $0`
 
@@ -93,6 +95,7 @@ do
 
     *)
       echo "Invalid option $1"
+      echo "USAGE: add-server -type [proxy|tenant|dns|idp] -ip IPADDRESS -dns DOMIANNAME"
       exit
   esac
 done
