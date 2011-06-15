@@ -23,8 +23,14 @@
 
 DESCRIPTS=`dirname $0`
 
-echo "Enter document root of your webserver"
-read doc_root
+username=$1
+password=$2
+doc_root=$3
+
+if [ ! ${doc_root} ] ; then
+    echo "Enter document root of your webserver"
+    read doc_root
+fi
 
 echo "Copying REST api to ${doc_root}/api"
 if [ ! -d /var/www/api ] ; then
@@ -45,7 +51,7 @@ fi
 cd ${doc_root}/api/inc/
 
 sudo mv config.inc.php config.inc.php.tmp
-sudo cat config.inc.php.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSiWDXX/${password}/g" > config.inc.php
+sudo cat config.inc.php.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSWDXX/${password}/g" > config.inc.php
 sudo rm config.inc.php.tmp
 
 cd -

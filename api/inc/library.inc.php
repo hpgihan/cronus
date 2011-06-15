@@ -73,7 +73,7 @@ function check_integrity($auth){
         $protocol='http';
     }
 
-	if($port != 80 || $port != 443){
+	if($port != 80 && $port != 443){
 	    $url = $protocol."://".$server.":".$port.$request;
 	}
 	else{

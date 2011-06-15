@@ -166,9 +166,13 @@ echo "Installing Identity Provider to /var/idp"
 cd lib
 sudo cp -r idp /var
 
+# Installing API
+echo "Enter Document root of your webserver"
+read doc_root
+
 # Install API Controller
 cd ../../scripts
-./copyapi
+./copyapi ${username} ${password} ${doc_root}
 cd ..
 
 # Install DNS, IDP, UTILS REST API's
