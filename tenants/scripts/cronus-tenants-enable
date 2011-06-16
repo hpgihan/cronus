@@ -5,8 +5,22 @@
 # This script is for post-install for packagers. If you
 # use the install script, there is no need to run rhis.
 
-http_site='0-cronus_tenants'
-https_site='0-cronus_tenants-ssl'
+application='cronus_tenants'
+http_site="0-${application}"
+https_site="0-${application}"
+
+echo "Enter MySQL username to be used in ${application}:"
+read username
+echo "Enter MySQL password for ${username}:"
+read password
+
+cd /var/www/cronus-tenants/api/inc/
+
+mv ./config.inc.php ./config.inc.php.tmp
+cat ./config.inc.php.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSWDXX/${password}/g" > ./config.inc.php
+rm ./config.inc.php.tmp
+
+cd -
 
 echo "Attempting to enable Apache2 modules: ssl, rewrite, headers..."
 a2enmod ssl rewrite headers
