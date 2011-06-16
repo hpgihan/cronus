@@ -113,13 +113,6 @@ sudo ./dns add idp ${dns_ip}
 
 cd -
 
-# Configure SSL VHost for IDP; install apache modules, ssl, rewrite, headers and restart apache
-echo "Adding SSL Virtual Host for IDP at idp.${domain}. Make sure SSL is enabled at port 443"
-
-sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" >> /etc/apache2/sites-available/default-ssl
-sudo a2ensite default-ssl
-sudo a2enmod ssl rewrite headers
-sudo /etc/init.d/apache2 restart
 
 # Retrieve DB Username Passwords to import databases and write to shell settings file and daemon config.py files
 echo "Installing databases"
@@ -174,13 +167,28 @@ cd -
 echo "Installing Identity Provider to /var/idp"
 cd lib
 sudo cp -r idp /var
+cd ..
 
 # Installing API
-echo "Enter Document root of your webserver"
+cd scripts
+echo "Enter Document root of your webserver: (ex - /var/www)"
 read doc_root
 
+# Configure SSL VHost for IDP; install apache modules, ssl, rewrite, headers and restart apache
+echo "Adding SSL Virtual Host for IDP at idp.${domain}. Make sure SSL is enabled at port 443"
+
+sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDOCROOTXX/${doc_root}/g" > /etc/apache2/sites-available/0-cronus_dns-ssl
+sudo a2ensite default-ssl
+sudo a2enmod ssl rewrite headers
+
+# Add configured ports.conf
+echo "Adding configured apache ports.conf file"
+sudo cat ports_conf.sample > /etc/apache2/ports_conf
+sudo /etc/init.d/apache2 restart
+cd -
+
 # Install API Controller
-cd ../../scripts
+cd ../scripts
 ./copyapi ${username} ${password} ${doc_root}
 cd ..
 
