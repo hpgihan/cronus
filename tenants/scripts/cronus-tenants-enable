@@ -7,8 +7,36 @@
 
 application='cronus_tenants'
 http_site="0-${application}"
-https_site="0-${application}"
+https_site="0-${application}-ssl"
 
+function prompt_agree(){
+    echo "$0 will now attempt to make the following system changes required by $application. It will attempt to:"
+    echo "* Enable Apache modules: ssl, rewrite, headers"
+    echo "* Enable Apache sites: $http_site, $https_site"
+    echo "* Reload Apache configuration"
+    echo "* Allow user www-data ALL previleges via sudo"
+    echo "* Disable AppArmor"
+    echo ""
+    echo "Proceed? ( yes | no )"
+    read answer
+    case $answer
+    in
+        yes)
+        return 0
+        ;;
+        no)
+        return 1
+        ;;
+        *)
+        prompt_agree
+    esac
+}
+
+if !(prompt_agree); then
+  exit 0
+fi
+
+echo ""
 echo "Enter MySQL username to be used in ${application}:"
 read username
 echo "Enter MySQL password for ${username}:"
@@ -39,3 +67,10 @@ a2ensite ${http_site}
 
 echo "Attempting to reload Apache2 configurations..."
 /etc/init.d/apache2 reload
+
+echo "Attempting to add www-data to sodoers..."
+echo "www-data  ALL=NOPASSWD:   ALL" >> /etc/sudoers
+
+echo "Attempting to disable AppArmor..."
+/etc/init.d/apparmor stop
+update-rc.d -f apparmor remove
