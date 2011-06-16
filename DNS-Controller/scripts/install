@@ -177,13 +177,13 @@ read doc_root
 # Configure SSL VHost for IDP; install apache modules, ssl, rewrite, headers and restart apache
 echo "Adding SSL Virtual Host for IDP at idp.${domain}. Make sure SSL is enabled at port 443"
 
-sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s/XXDOCROOTXX/${doc_root}/g" > /etc/apache2/sites-available/0-cronus_dns-ssl
-sudo a2ensite default-ssl
+sudo cat default-ssl.sample | sed -e "s/XXDOMAINXX/${domain}/g" | sed -e "s:XXDOCROOTXX:${doc_root}:g" > /etc/apache2/sites-available/0-cronus_dns-ssl
+sudo a2ensite 0-cronus_dns-ssl
 sudo a2enmod ssl rewrite headers
 
 # Add configured ports.conf
 echo "Adding configured apache ports.conf file"
-sudo cat ports_conf.sample > /etc/apache2/ports_conf
+sudo cat ports_conf.sample > /etc/apache2/ports.conf
 sudo /etc/init.d/apache2 restart
 cd -
 
