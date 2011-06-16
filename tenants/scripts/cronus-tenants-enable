@@ -14,12 +14,14 @@ read username
 echo "Enter MySQL password for ${username}:"
 read password
 
+echo "Attempting to write MySQL credentials for Cronus API..."
 cd /var/www/cronus-tenants/api/inc/
 mv ./config.inc.php ./config.inc.php.tmp
 cat ./config.inc.php.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSWDXX/${password}/g" > ./config.inc.php
 rm ./config.inc.php.tmp
 cd -
 
+echo "Attempting to write MySQL credentials for Cronus shell..."
 cd /opt/cronus/shell
 cat shell.inc.sh > shell.inc.sh.tmp
 cat shell.inc.sh.tmp | sed -e "s/XXDBUSERXX/${username}/g" | sed -e "s/XXDBPASSWDXX/${password}/g" > shell.inc.sh
