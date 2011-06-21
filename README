@@ -1,1 +1,33 @@
-LAMP platform as a service -- r
+Cronus
+======
+
+Cronus is an Open Source Multi-Tenant Virtualized, Platform as a Service
+(PaaS) solution.
+
+It is backed by many hours of R&D by Thinkcube. Cronus aims to bring cost
+effective scalability to Cloud Computing, viable for Telco environments.
+The unique multi-tenant virtualization enables much lower “per customer”
+deployment cost than traditional PaaS solutions.
+
+Cronus consists of 3 main components:
+# Tenants
+# Proxy
+# DNS Controller
+
+Some of the included features of the platform are:
+- Apache virtualization
+- PHP support
+- MySQL-Multi support
+- Tenant management
+- SAML Identity Provider
+- PHP SAML Service Provider
+- LVM based storage
+
+More information with developer resources and community links will be
+available soon.
+
+Since Thinkcube is in the process of releasing Cronus as an Open Source
+project, production use is not recommended for the moment. Trying out
+and contributing is always welcome though.
+
+Current supported platforms: Ubuntu Server 10.04 LTS (64-bit)
